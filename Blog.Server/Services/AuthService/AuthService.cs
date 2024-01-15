@@ -1,6 +1,7 @@
 ﻿using Blog.Server.Data;
 using Blog.Server.Data.Models;
 using Blog.Server.Models.Configs;
+using Blog.Server.Services.HashService;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -17,6 +18,7 @@ namespace Blog.Server.Services.AuthService
     {
         protected readonly BlogDbContext _context;
         protected readonly IHttpContextAccessor _httpContextAccessor;
+        protected readonly IHashService hashService;
         protected readonly AuthServiceConfigModel authConfig;
         protected readonly JWTConfigModel jwtConfig;
         protected readonly SystemConfigModel systemConfig;
@@ -25,17 +27,19 @@ namespace Blog.Server.Services.AuthService
 
         public AuthService(BlogDbContext context,
                            IHttpContextAccessor httpContextAccessor,
-                           IOptions<AuthServiceConfigModel> authConfig,
                            IOptions<JWTConfigModel> jwtConfig,
                            IOptions<SystemConfigModel> systemConfig,
+                           IOptions<AuthServiceConfigModel> authConfig,
+                           IHashService hashService,
                            IMemoryCache cache,
                            IEmailService emailService)
         {
             _context = context;
             _httpContextAccessor = httpContextAccessor;
-            this.authConfig = authConfig.Value;
             this.jwtConfig = jwtConfig.Value;
             this.systemConfig = systemConfig.Value;
+            this.authConfig = authConfig.Value;
+            this.hashService = hashService;
             this.cache = cache;
             this.emailService = emailService;
         }
@@ -72,7 +76,7 @@ namespace Blog.Server.Services.AuthService
                 return false;
             }
 
-            if (ValidatePassword(password, user.PasswordHash))
+            if (hashService.Verify(password, user.PasswordHash))
             {
                 return false;
             }
@@ -131,7 +135,7 @@ namespace Blog.Server.Services.AuthService
             var user = new UserModel
             {
                 Username = username,
-                PasswordHash = HashPassword(password),
+                PasswordHash = hashService.Hash(password),
                 Email = email,
                 CanPublish = false,
                 IsAdmin = false,
@@ -160,49 +164,6 @@ namespace Blog.Server.Services.AuthService
                 });
             }
 
-            return true;
-        }
-
-        private string HashPassword(string password)
-        {
-            byte[] salt;
-
-            using (var generator = RandomNumberGenerator.Create())
-            {
-                salt = new byte[authConfig.SaltByteSize];
-                generator.GetBytes(salt);
-            }
-
-            var pbkdf2 = new Rfc2898DeriveBytes(password, salt, authConfig.HasingIterationsCount, HashAlgorithmName.SHA512);
-            byte[] hash = pbkdf2.GetBytes(authConfig.HashByteSize);
-            byte[] hashBytes = new byte[authConfig.HashByteSize + authConfig.SaltByteSize];
-
-            Array.Copy(salt, 0, hashBytes, 0, authConfig.SaltByteSize);
-            Array.Copy(hash, 0, hashBytes, authConfig.SaltByteSize, authConfig.HashByteSize);
-
-            return Convert.ToBase64String(hashBytes);
-        }
-
-        private bool ValidatePassword(string password, string passwordHash)
-        {
-            try
-            {
-                byte[] hashBytes = Convert.FromBase64String(passwordHash);
-
-                byte[] salt = new byte[authConfig.SaltByteSize];
-                Array.Copy(hashBytes, 0, salt, 0, authConfig.SaltByteSize);
-
-                var pbkdf2 = new Rfc2898DeriveBytes(password, salt, authConfig.HasingIterationsCount, HashAlgorithmName.SHA512);
-                byte[] hash = pbkdf2.GetBytes(authConfig.HashByteSize);
-
-                for (int i = 0; i < authConfig.HashByteSize; i++)
-                    if (hashBytes[i + authConfig.SaltByteSize] != hash[i])
-                        return false;
-            }
-            catch
-            {
-                return false;
-            }
             return true;
         }
     }
