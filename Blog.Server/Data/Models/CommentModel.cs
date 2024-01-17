@@ -13,8 +13,8 @@ namespace Blog.Server.Data.Models
         public int AuthorId { get; set; }
         public UserModel Author { get; set; } = null!;
         [Required]
-        public int RecordId { get; set; }
-        public RecordModel Record { get; set; } = null!;
+        public int PostId { get; set; }
+        public PostModel Post { get; set; } = null!;
 
         public DateTime CreatedAt { get; set; } = DateTime.Now;
         public DateTime? UpdatedAt { get; set; } = null;

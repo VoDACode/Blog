@@ -9,6 +9,7 @@ namespace Blog.Server.Attributes
     public class AuthorizeAnyTypeAttribute : Attribute, IAuthorizationFilter
     {
         public AuthorizeType Type { get; set; } = AuthorizeType.Any;
+        public bool AllowAnonymous { get; set; } = false;
         public string? Roles { get; set; } = null;
 
         private int intType => (int)Type;
@@ -33,6 +34,11 @@ namespace Blog.Server.Attributes
 
             if (handeled is null)
             {
+                if(AllowAnonymous)
+                {
+                    context.Result = null;
+                    return;
+                }
                 context.Result = new UnauthorizedResult();
                 return;
             }
@@ -56,6 +62,11 @@ namespace Blog.Server.Attributes
                     context.Result = new ForbidResult();
                     return;
                 }
+            }
+
+            if (this.AllowAnonymous)
+            {
+                context.Result = null;
             }
         }
 

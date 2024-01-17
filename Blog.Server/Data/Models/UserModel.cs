@@ -18,7 +18,7 @@ namespace Blog.Server.Data.Models
         public bool CanPublish { get; set; } = false;
         public bool IsBanned { get; set; } = false;
 
-        public ICollection<RecordModel> Records { get; set; } = new List<RecordModel>();
+        public ICollection<PostModel> Records { get; set; } = new List<PostModel>();
         public ICollection<CommentModel> Comments { get; set; } = new List<CommentModel>();
     }
 }

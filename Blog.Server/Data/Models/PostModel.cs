@@ -2,7 +2,7 @@
 
 namespace Blog.Server.Data.Models
 {
-    public class RecordModel
+    public class PostModel
     {
         [Key]
         public int Id { get; set; }

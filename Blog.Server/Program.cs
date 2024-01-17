@@ -2,9 +2,14 @@ using Blog.Server.Data;
 using Blog.Server.Extensions;
 using Blog.Server.Models.Configs;
 using Blog.Server.Services.AuthService;
+using Blog.Server.Services.FileStorage;
 using Blog.Server.Services.HashService;
+using Blog.Server.Services.PostService;
 using Blog.Server.Tools;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using VoDA.AspNetCore.Services.Email;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,12 +20,54 @@ builder.Services.Configure<JWTConfigModel>(builder.Configuration.GetSection("JWT
 builder.Services.Configure<AuthServiceConfigModel>(builder.Configuration.GetSection("Services:Auth"));
 builder.Services.Configure<EmailServiceConfigModel>(builder.Configuration.GetSection("Services:Email"));
 
+builder.Services.AddFileStorage((options) =>
+{
+    var configData = builder.Configuration["Services:FileStorage:StoragePath"];
+
+    if (configData is null)
+    {
+        throw new Exception("FileStorageServiceConfig is null");
+    }
+
+    options.StoragePath = configData;
+});
+
 // Add services to the container.
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddCookie(o =>
+{
+    o.LoginPath = "/login";
+})
+.AddJwtBearer(options =>
+{
+    var authConfig = builder.Configuration.Get<JWTConfigModel>();
+
+    if (authConfig is null)
+    {
+        throw new Exception("JWTConfigModel is null");
+    }
+
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateIssuerSigningKey = true,
+        ValidateLifetime = true,
+        ValidIssuer = authConfig.Issuer,
+        ValidAudience = authConfig.Audience,
+        IssuerSigningKey = authConfig.GetSymmetricSecurityKey()
+    };
+});
+
 
 builder.Services.AddDbContext<BlogDbContext>(options =>
 {
@@ -44,6 +91,8 @@ builder.Services.AddEmailService((e) =>
     }
     e.LoadFromConfig(configData);
 });
+
+builder.Services.AddScoped<IPostService, PostService>();
 
 var app = builder.Build();
 

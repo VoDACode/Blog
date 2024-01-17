@@ -14,7 +14,7 @@ namespace Blog.Server.Data.Models
         [Required]
         public required string ContentType { get; set; }
         [Required]
-        public required int RecordId { get; set; }
-        public RecordModel Record { get; set; } = null!;
+        public required int PostId { get; set; }
+        public PostModel Post { get; set; } = null!;
     }
 }

@@ -9,6 +9,6 @@ namespace Blog.Server.Data.Models
         [Required]
         public required string Tag { get; set; }
 
-        public ICollection<RecordModel> Records { get; set; } = new List<RecordModel>();
+        public ICollection<PostModel> Posts { get; set; } = new List<PostModel>();
     }
 }

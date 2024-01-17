@@ -5,7 +5,7 @@ namespace Blog.Server.Data
 {
     public class BlogDbContext : DbContext
     {
-        public DbSet<RecordModel> Records { get; set; } = null!;
+        public DbSet<PostModel> Posts { get; set; } = null!;
         public DbSet<UserModel> Users { get; set; } = null!;
         public DbSet<CommentModel> Comments { get; set; } = null!;
         public DbSet<FileModel> Files { get; set; } = null!;
@@ -18,13 +18,13 @@ namespace Blog.Server.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<RecordModel>()
+            modelBuilder.Entity<PostModel>()
                 .HasMany(r => r.Tags)
-                .WithMany(t => t.Records);
+                .WithMany(t => t.Posts);
 
-            modelBuilder.Entity<RecordModel>()
+            modelBuilder.Entity<PostModel>()
                 .HasMany(r => r.Files)
-                .WithOne(f => f.Record)
+                .WithOne(f => f.Post)
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<UserModel>()
@@ -38,7 +38,7 @@ namespace Blog.Server.Data
                 .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<CommentModel>()
-                .HasOne(c => c.Record)
+                .HasOne(c => c.Post)
                 .WithMany(r => r.Comments)
                 .OnDelete(DeleteBehavior.Cascade);
 
