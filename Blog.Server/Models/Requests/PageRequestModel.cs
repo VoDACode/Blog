@@ -8,7 +8,7 @@ namespace Blog.Server.Models.Requests
         [FromQuery(Name = "page")]
         [Range(1, int.MaxValue)]
         public int PageNumber { get; set; } = 1;
-        [FromQuery(Name = "page_size")]
+        [FromQuery(Name = "pageSize")]
         [Range(1, int.MaxValue)]
         public int PageSize { get; set; } = 10;
     }

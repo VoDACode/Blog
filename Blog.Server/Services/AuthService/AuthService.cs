@@ -1,7 +1,9 @@
 ﻿using Blog.Server.Data;
 using Blog.Server.Data.Models;
+using Blog.Server.Extensions;
 using Blog.Server.Models.Configs;
 using Blog.Server.Services.HashService;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Options;
@@ -44,20 +46,35 @@ namespace Blog.Server.Services.AuthService
             this.emailService = emailService;
         }
 
+        public bool IsAuthenticated
+        {
+            get
+            {
+                try
+                {
+                    return _httpContextAccessor.HttpContext?.GetUserId() != null;
+                }
+                catch
+                {
+                    return false;
+                }
+            }
+        }
+
         public async Task<bool> ConfirmEmail(string token, string email)
         {
-            if(!cache.TryGetValue($"email-confirmation-{email}", out string? cachedUser))
+            if (!cache.TryGetValue($"email-confirmation-{email}", out string? cachedUser))
             {
                 return false;
             }
 
-            if(cachedUser is null)
+            if (cachedUser is null)
             {
                 return false;
             }
 
             var user = JsonSerializer.Deserialize<UserModel>(cachedUser);
-            if(user == null)
+            if (user == null)
             {
                 return false;
             }
@@ -81,6 +98,90 @@ namespace Blog.Server.Services.AuthService
                 return false;
             }
 
+            this.LoginUser(user);
+
+            return true;
+        }
+
+        public void Logout()
+        {
+            _httpContextAccessor.HttpContext?.Response.Cookies.Delete(".VoDACode.Authorize");
+        }
+
+        public async Task<bool> Refresh()
+        {
+            int? userId = 0;
+            try
+            {
+                userId = _httpContextAccessor.HttpContext?.GetUserId();
+            }
+            catch
+            {
+                return false;
+            }
+            var user = await _context.Users.SingleOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return false;
+            }
+            this.LoginUser(user);
+            return true;
+        }
+
+        public async Task<bool> Register(string username, string password, string email)
+        {
+            if (cache.TryGetValue($"email-confirmation-{email}", out string? cachedUser))
+            {
+                throw new BadHttpRequestException("Email already exists");
+            }
+
+            if (await _context.Users.AnyAsync(u => u.Email == email))
+            {
+                throw new BadHttpRequestException("Email already exists");
+            }
+
+            if (await _context.Users.AnyAsync(u => u.Username == username))
+            {
+                throw new BadHttpRequestException("Username already exists");
+            }
+
+            var user = new UserModel
+            {
+                Username = username,
+                PasswordHash = hashService.Hash(password),
+                Email = email,
+                CanPublish = false,
+                IsAdmin = false,
+                IsBanned = false
+            };
+
+            if (!systemConfig.NeedEmailConfirmation)
+            {
+                await _context.Users.AddAsync(user);
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                byte[] confirmCodeBytes = new byte[authConfig.ConfirmationCodeByteSize];
+                using (var generator = RandomNumberGenerator.Create())
+                {
+                    generator.GetBytes(confirmCodeBytes);
+                }
+                string confirmCode = Convert.ToBase64String(confirmCodeBytes);
+                cache.Set($"email-confirmation-{user.Email}", JsonSerializer.Serialize(user), TimeSpan.FromHours(1));
+
+                await emailService.SendEmailUseTemplate(user.Email, "ConfirmEmail", new Dictionary<string, string>
+                {
+                    { "username", user.Username },
+                    { "link", $"{systemConfig.BaseUrl}/api/auth/confirm-email?token={confirmCode}&email={user.Email}" }
+                });
+            }
+
+            return true;
+        }
+
+        private void LoginUser(UserModel user)
+        {
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
@@ -108,64 +209,6 @@ namespace Blog.Server.Services.AuthService
                 HttpOnly = true,
                 Expires = DateTime.Now.AddHours(jwtConfig.ExpirationHours)
             });
-            return true;
-        }
-
-        public void Logout()
-        {
-            _httpContextAccessor.HttpContext?.Response.Cookies.Delete(".VoDACode.Authorize");
-        }
-
-        public async Task<bool> Register(string username, string password, string email)
-        {
-            if(cache.TryGetValue($"email-confirmation-{email}", out string? cachedUser))
-            {
-                throw new BadHttpRequestException("Email already exists");
-            }
-
-            if (await _context.Users.AnyAsync(u => u.Email == email))
-            {
-                throw new BadHttpRequestException("Email already exists");
-            }
-
-            if (await _context.Users.AnyAsync(u => u.Username == username))
-            {
-                throw new BadHttpRequestException("Username already exists");
-            }
-
-            var user = new UserModel
-            {
-                Username = username,
-                PasswordHash = hashService.Hash(password),
-                Email = email,
-                CanPublish = false,
-                IsAdmin = false,
-                IsBanned = false
-            };
-
-            if(!systemConfig.NeedEmailConfirmation)
-            {
-                await _context.Users.AddAsync(user);
-                await _context.SaveChangesAsync();
-            }
-            else
-            {
-                byte[] confirmCodeBytes = new byte[authConfig.ConfirmationCodeByteSize];
-                using (var generator = RandomNumberGenerator.Create())
-                {
-                    generator.GetBytes(confirmCodeBytes);
-                }
-                string confirmCode = Convert.ToBase64String(confirmCodeBytes);
-                cache.Set($"email-confirmation-{user.Email}", JsonSerializer.Serialize(user), TimeSpan.FromHours(1));
-
-                await emailService.SendEmailUseTemplate(user.Email, "ConfirmEmail", new Dictionary<string, string>
-                {
-                    { "username", user.Username },
-                    { "link", $"{systemConfig.BaseUrl}/api/auth/confirm-email?token={confirmCode}&email={user.Email}" }
-                });
-            }
-
-            return true;
         }
     }
 }

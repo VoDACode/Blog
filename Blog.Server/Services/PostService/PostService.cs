@@ -13,18 +13,20 @@ namespace Blog.Server.Services.PostService
         protected readonly BlogDbContext dbContext;
         protected readonly IFileStorage fileStorage;
         protected readonly IHttpContextAccessor httpContextAccessor;
+        protected readonly ILogger logger;
 
         private int? UserId => httpContextAccessor.HttpContext?.GetUserId();
         private bool IsAdmin => httpContextAccessor.HttpContext?.IsAdmin() ?? false;
 
-        public PostService(BlogDbContext dbContext, IFileStorage fileStorage, IHttpContextAccessor httpContextAccessor)
+        public PostService(BlogDbContext dbContext, IFileStorage fileStorage, IHttpContextAccessor httpContextAccessor, ILogger<PostService> logger)
         {
             this.dbContext = dbContext;
             this.fileStorage = fileStorage;
             this.httpContextAccessor = httpContextAccessor;
+            this.logger = logger;
         }
 
-        public async Task<PostModel> CreatePost(CreatePostRequestModel requestModel)
+        public async Task<PostModel> CreatePost(CreatePostRequestModel requestModel, IFormFileCollection? files)
         {
             var userId = UserId ?? throw new UnauthorizedAccessException("User is not authenticated");
 
@@ -64,9 +66,9 @@ namespace Blog.Server.Services.PostService
 
             await dbContext.SaveChangesAsync();
 
-            if (requestModel.Files != null)
+            if (files != null)
             {
-                foreach (var file in requestModel.Files)
+                foreach (var file in files)
                 {
                     var fileModel = new FileModel
                     {
@@ -106,7 +108,14 @@ namespace Blog.Server.Services.PostService
             // delete files from storage
             foreach (var file in post.Files)
             {
-                await fileStorage.DeleteFile(file);
+                try
+                {
+                    await fileStorage.DeleteFile(file);
+                }
+                catch (Exception e)
+                {
+                    logger.LogWarning(e.Message);
+                }
             }
 
             // delete all comments
@@ -148,7 +157,7 @@ namespace Blog.Server.Services.PostService
             return post;
         }
 
-        public async Task<IEnumerable<PostModel>> GetPosts(PageRequestModel pageRequest)
+        public IQueryable<PostModel> GetPosts(PageRequestModel pageRequest)
         {
             var query = dbContext.Posts
                 .Include(p => p.Author)
@@ -158,11 +167,7 @@ namespace Blog.Server.Services.PostService
                 .OrderByDescending(p => p.CreatedAt)
                 .AsQueryable();
 
-            query = query
-                .Skip((pageRequest.PageNumber - 1) * pageRequest.PageSize)
-                .Take(pageRequest.PageSize);
-
-            return await query.ToListAsync();
+            return query;
         }
 
         public async Task<PostModel> UpdatePost(int id, UpdatePostRequestModel requestModel)
@@ -212,6 +217,31 @@ namespace Blog.Server.Services.PostService
             await dbContext.SaveChangesAsync();
 
             return post;
+        }
+
+        public IQueryable<PostModel> Search(PostSearchRequestModel requestModel)
+        {
+            var query = dbContext.Posts
+                .Include(p => p.Author)
+                .Include(p => p.Tags)
+                .Include(p => p.Files)
+                .Where(p => p.IsPublished || IsAdmin)
+                .Where(p => p.Title.Contains(requestModel.Query) || p.Tags.Any(t => t.Tag.Contains(requestModel.Query)) || p.Content.Contains(requestModel.Query))
+                .OrderByDescending(p => p.CreatedAt)
+                .AsQueryable();
+
+            return query;
+        }
+
+        public async Task<IEnumerable<string>> SearchTags(string query)
+        {
+            var tags = await dbContext.Tags
+                .Where(t => t.Tag.Contains(query))
+                .Select(t => t.Tag)
+                .Take(10)
+                .ToListAsync();
+
+            return tags;
         }
     }
 }

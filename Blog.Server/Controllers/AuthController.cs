@@ -1,4 +1,5 @@
-﻿using Blog.Server.Models.Configs;
+﻿using Blog.Server.Attributes;
+using Blog.Server.Models.Configs;
 using Blog.Server.Models.Requests;
 using Blog.Server.Models.Responses;
 using Blog.Server.Services.AuthService;
@@ -27,9 +28,9 @@ namespace Blog.Server.Controllers
         {
             if (await authService.Login(model.Username, model.Password))
             {
-                return Ok();
+                return Ok(BaseResponse.Ok());
             }
-            return Unauthorized();
+            return Unauthorized(BaseResponse.Fail());
         }
 
         [HttpPost("register")]
@@ -56,6 +57,17 @@ namespace Blog.Server.Controllers
             }
         }
 
+        [AuthorizeAnyType]
+        [HttpPost("refresh")]
+        public async Task<IActionResult> Refresh()
+        {
+            if (await authService.Refresh())
+            {
+                return Ok(BaseResponse.Ok());
+            }
+            return Unauthorized(BaseResponse.Fail());
+        }
+
         [HttpGet("confirm-email")]
         public async Task<IActionResult> ConfirmEmail([FromQuery] string token, [FromQuery] string email)
         {
@@ -71,6 +83,14 @@ namespace Blog.Server.Controllers
         {
             authService.Logout();
             return Ok();
+        }
+
+        [AuthorizeAnyType(AllowAnonymous = true)]
+        [HttpGet("is-authenticated")]
+        public IActionResult IsAuthenticated()
+        {
+            BaseResponse response = authService.IsAuthenticated ? BaseResponse.Ok() : BaseResponse.Fail();
+            return Ok(response);
         }
     }
 }

@@ -12,12 +12,17 @@ namespace Blog.Server.Models.Responses
             Data = models.Select(m => new View(m)).ToList();
         }
 
+        public PostResponse(IQueryable<PostModel> models) : base(true, null)
+        {
+            Data = models.Select(m => new View(m)).ToList();
+        }
+
 
         public class View
         {
             public int Id { get; set; }
             public string Title { get; set; } = null!;
-            public string? Content { get; set; }
+            public string Content { get; set; }
             public DateTime CreatedAt { get; set; }
             public DateTime? UpdatedAt { get; set; }
             public bool HasComments { get; set; }
@@ -30,7 +35,7 @@ namespace Blog.Server.Models.Responses
             {
                 Id = model.Id;
                 Title = model.Title;
-                Content = model.Content;
+                Content = model.Content ?? "";
                 CreatedAt = model.CreatedAt;
                 UpdatedAt = model.UpdatedAt;
                 HasComments = model.HasComments;

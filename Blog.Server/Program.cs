@@ -33,7 +33,6 @@ builder.Services.AddFileStorage((options) =>
 });
 
 // Add services to the container.
-
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
@@ -68,7 +67,6 @@ builder.Services.AddAuthentication(options =>
     };
 });
 
-
 builder.Services.AddDbContext<BlogDbContext>(options =>
 {
     options.UseSqlite(builder.Configuration["DB:ConnectionString"]);
@@ -95,6 +93,14 @@ builder.Services.AddEmailService((e) =>
 builder.Services.AddScoped<IPostService, PostService>();
 
 var app = builder.Build();
+
+// Configure CORS for localhost:4200
+app.UseCors(builder =>
+{
+    builder.WithOrigins("http://localhost:4200")
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+});
 
 app.UseDefaultFiles();
 app.UseStaticFiles();

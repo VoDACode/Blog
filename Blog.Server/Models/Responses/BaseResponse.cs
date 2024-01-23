@@ -25,6 +25,7 @@ namespace Blog.Server.Models.Responses
 
         protected BaseResponse(bool success, object? data = null)
         {
+            Success = success;
             Data = data;
         }
 
