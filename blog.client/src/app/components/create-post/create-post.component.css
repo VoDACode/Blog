@@ -1,0 +1,98 @@
+.nav-item {
+    cursor: pointer;
+}
+
+.files-select {
+    display: none;
+}
+
+.files-select-box {
+    position: relative;
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    padding: 10px;
+    margin-left: 15px;
+    margin-right: 15px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.files-select-box>section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+}
+
+.row{
+    margin-top: 5px;
+}
+
+.tags .item {
+    display: inline-block;
+    margin: 5px;
+    background: var(--bs-primary);
+    padding: 3px;
+    border-radius: 5px;
+}
+
+.search-tag-box{
+    display: inline-block;
+    position: relative;
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    padding: 10px;
+    margin-left: 15px;
+    margin-right: 15px;
+    border-radius: 5px;
+}
+.search-tag-box .search-tag{
+    width: 100%;
+    padding: 5px;
+    border: var(--bs-border-width) solid var(--bs-border-color);
+    border-radius: 5px;
+    outline: none;
+}
+
+.search-tag-box .search-input{
+    display: inline-block;
+    position: relative;
+}
+.search-tag-box .search-input input{
+    max-width: 250px;
+}
+.search-tag-box .search-input .tag-suggestion{
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: var(--bs-body-bg);
+    border: 2px solid var(--bs-border-color);
+    border-radius: 5px;
+}
+
+.search-tag-box .search-input .tag-suggestion .item{
+    display: block;
+    padding: 5px;
+    cursor: pointer;
+    background-color: var(--bs-body-bg);
+    border: 2px solid var(--bs-border-color);
+}
+.search-tag-box .search-input .tag-suggestion .item.selected{
+    background-color: var(--bs-primary);
+    color: var(--bs-light);
+}
+
+.tags .item .delete-tag{
+    display: inline-block;
+    margin-left: 5px;
+    cursor: pointer;
+    color: rgb(247,15,0);
+    transition: all 0.3s ease-in-out;
+}
+
+.tags .item .delete-tag:hover{
+    color: rgb(82, 0, 0);
+}
+
+input[type="checkbox"] {
+    margin-left: 5px;
+}

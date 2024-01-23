@@ -3,15 +3,31 @@ import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
 import { AppComponent } from './app.component';
+import { NavigationComponent } from './components/navigation/navigation.component';
+import { PostComponent } from './components/post/post.component';
+import { LoginPageComponent } from './components/login-page/login-page.component';
+import { HomePageComponent } from './components/home-page/home-page.component';
+import { RouterModule } from '@angular/router';
+import { routes } from './app.routes';
+import { ImagePreviewComponent } from './components/image-preview/image-preview.component';
+import { TextRenderComponent } from './components/text-render/text-render.component';
+import { FormsModule } from '@angular/forms';
+import { AuthGuard } from './auth.guard';
+import { CreatePostComponent } from './components/create-post/create-post.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    NavigationComponent,
+    PostComponent, CreatePostComponent, ImagePreviewComponent, TextRenderComponent,
+    LoginPageComponent,
+    HomePageComponent
   ],
   imports: [
-    BrowserModule, HttpClientModule
+    FormsModule,
+    BrowserModule, HttpClientModule, RouterModule.forRoot(routes)
   ],
-  providers: [],
+  providers: [AuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -1,0 +1,11 @@
+.dropdown-item {
+    cursor: pointer;
+}
+
+.tags .item {
+    display: inline-block;
+    margin: 5px;
+    background: var(--bs-primary);
+    padding: 3px;
+    border-radius: 5px;
+}

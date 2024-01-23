@@ -1,0 +1,112 @@
+<div class="container"
+    style="max-width: 1024px;padding: 5px;border-style: solid;border-color: var(--bs-secondary-bg);border-radius: 5px; margin-bottom:10px;">
+    <div class="row">
+        <div class="col">
+            <input type="text" class="form-control" placeholder="Title" [(ngModel)]="post.title">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <ul class="nav nav-tabs">
+                <li class="nav-item">
+                    <a class="nav-link {{!isPreview ? 'active' : ''}}" (click)="setPreviewMode(false)">Edit</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link {{isPreview ? 'active' : ''}}" (click)="setPreviewMode(true)">Preview</a>
+                </li>
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col" *ngIf="isPreview">
+            <app-text-render [text]="post.content"></app-text-render>
+        </div>
+        <div class="col" *ngIf="!isPreview">
+            <textarea class="form-control" rows="10" placeholder="Content" [(ngModel)]="post.content"></textarea>
+        </div>
+    </div>
+    <app-image-preview [images]="images" [canDelete]="true" *ngIf="hasFiles"
+        (delete)="onDeleteFile($event)"></app-image-preview>
+    <hr *ngIf="hasFiles">
+    <div class="row" *ngIf="hasFiles">
+        <div class="col">
+            <div class="row" style="margin-top: 5px;" *ngFor="let fileModel of files">
+                <div class="col align-self-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                        viewBox="0 0 16 16" class="bi bi-file" style="width: 32px;height: 32px;">
+                        <path
+                            d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1">
+                        </path>
+                    </svg>
+                    <a href="{{fileModel.url}}">{{fileModel.name}}</a>
+                </div>
+                <div class="col offset-xl-0 align-self-center" style="text-align: right;">
+                    <a class="btn btn-danger" (click)="onDeleteFile(fileModel)" style="margin-right: 10px;">Delete</a>
+                    <span>{{getFileSize(fileModel)}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <div class="row">
+                <div class="col files-select-box">
+                    <section>
+                        <button type="button" class="btn btn-success" (click)="onUploadFileClick()">Upload
+                            files</button>
+                        <input type="file" class="files-select" (change)="onFileChange($event)" #fileInput multiple>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row tags">
+        <div class="col">
+            <div class="row">
+                <div class="col search-tag-box">
+                    <div class="item" *ngFor="let tag of post.tags">
+                        <span>{{tag}}</span>
+                        <a class="delete-tag" (click)="deleteTag(tag)">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                                viewBox="0 0 16 16" class="bi bi-trash" style="height: 16px;">
+                                <path
+                                    d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z">
+                                </path>
+                                <path
+                                    d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z">
+                                </path>
+                            </svg>
+                        </a>
+                    </div>
+                    <div class="search-input">
+                        <input type="text" class="form-control" placeholder="Tag" [(ngModel)]="tag"
+                            (keyup)="searchTag($event)">
+                        <div class="tag-suggestion" *ngIf="tagSuggestion.length > 0">
+                            <div class="item {{tag.selected ? 'selected' : ''}}" *ngFor="let tag of tagSuggestion"
+                                (click)="addTag(tag.tag)">
+                                <span>{{tag.tag}}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <span>Is public:</span>
+            <input type="checkbox" [(ngModel)]="post.isPublished">
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <span>Has comments:</span>
+            <input type="checkbox" [disabled]="!post.isPublished" [(ngModel)]="post.hasComments">
+        </div>
+    </div>
+    <div class="row save-zone">
+        <div class="col">
+            <button class="btn btn-primary" (click)="save()">Save</button>
+        </div>
+    </div>
+</div>

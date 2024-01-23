@@ -1,0 +1,90 @@
+<div class="container"
+    style="max-width: 1024px;padding: 5px;border-style: solid;border-color: var(--bs-secondary-bg);border-radius: 5px; margin-bottom:10px;">
+    <div class="row">
+        <div class="col align-self-center">
+            <span style="font-size: 18px;">{{post.author}}</span>
+            <span style="margin-left: 5px;font-size: 18px;">#{{post.id}}</span>
+        </div>
+        <div class="col align-self-center" style="text-align: center;">
+            <span style="font-size: 18px;">{{getDateTime(post.createdAt)}}</span>
+        </div>
+        <div class="col text-end align-self-center">
+            <span style="margin-right: 10px;display: inline;font-size: 18px;">{{getDateTime(post.updatedAt)}}</span>
+            <div class="dropdown show" style="display: inline;">
+                <button class="btn btn-secondary dropdown-toggle" aria-expanded="true" data-bs-toggle="dropdown"
+                    type="button">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                        viewBox="0 0 16 16" class="bi bi-three-dots" style="font-size: 32px;">
+                        <path
+                            d="M3 9.5a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3m5 0a1.5 1.5 0 1 1 0-3 1.5 1.5 0 0 1 0 3">
+                        </path>
+                    </svg>
+                </button>
+                <div class="dropdown-menu" data-bs-popper="none">
+                    <a class="dropdown-item" (click)="share()">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                            viewBox="0 0 16 16" class="bi bi-share" style="height: 16px;margin-right: 5px;">
+                            <path
+                                d="M13.5 1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3M11 2.5a2.5 2.5 0 1 1 .603 1.628l-6.718 3.12a2.499 2.499 0 0 1 0 1.504l6.718 3.12a2.5 2.5 0 1 1-.488.876l-6.718-3.12a2.5 2.5 0 1 1 0-3.256l6.718-3.12A2.5 2.5 0 0 1 11 2.5m-8.5 4a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3m11 5.5a1.5 1.5 0 1 0 0 3 1.5 1.5 0 0 0 0-3">
+                            </path>
+                        </svg>Share</a>
+                    <a class="dropdown-item" *ngIf="userModel.isAdmin && userModel.username == post.author"
+                        [routerLink]="['/post', post.id, 'edit']">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                            viewBox="0 0 16 16" class="bi bi-pencil" style="height: 16px;margin-right: 5px;">
+                            <path
+                                d="M12.146.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1 0 .708l-10 10a.5.5 0 0 1-.168.11l-5 2a.5.5 0 0 1-.65-.65l2-5a.5.5 0 0 1 .11-.168l10-10zM11.207 2.5 13.5 4.793 14.793 3.5 12.5 1.207zm1.586 3L10.5 3.207 4 9.707V10h.5a.5.5 0 0 1 .5.5v.5h.5a.5.5 0 0 1 .5.5v.5h.293zm-9.761 5.175-.106.106-1.528 3.821 3.821-1.528.106-.106A.5.5 0 0 1 5 12.5V12h-.5a.5.5 0 0 1-.5-.5V11h-.5a.5.5 0 0 1-.468-.325z">
+                            </path>
+                        </svg>Edit</a>
+                    <a class="dropdown-item" *ngIf="userModel.isAdmin && userModel.username == post.author"
+                        (click)="deletePost()" style="color: rgb(247,15,0);">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                            viewBox="0 0 16 16" class="bi bi-trash" style="height: 16px;margin-right: 5px;">
+                            <path
+                                d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z">
+                            </path>
+                            <path
+                                d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z">
+                            </path>
+                        </svg>Delete
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col">
+            <h2>{{post.title}}</h2>
+        </div>
+    </div>
+    <div class="row">
+        <app-text-render [text]="post.content"></app-text-render>
+    </div>
+    <app-image-preview [images]="images" [canDelete]="false" *ngIf="hasFiles"></app-image-preview>
+    <hr *ngIf="hasFiles">
+    <div class="row" *ngIf="hasFiles">
+        <div class="col">
+            <div class="row" style="margin-top: 5px;" *ngFor="let fileModel of files">
+                <div class="col align-self-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor"
+                        viewBox="0 0 16 16" class="bi bi-file" style="width: 32px;height: 32px;">
+                        <path
+                            d="M4 0a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2zm0 1h8a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1">
+                        </path>
+                    </svg>
+                    <a href="{{fileModel.url}}">{{fileModel.name}}</a>
+                </div>
+                <div class="col offset-xl-0 align-self-center" style="text-align: right;">
+                    <span>{{getFileSize(fileModel)}}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row tags">
+        <div class="col">
+            <div class="item" *ngFor="let tag of post.tags">
+                <span>{{tag}}</span>
+            </div>
+        </div>
+    </div>
+</div>
