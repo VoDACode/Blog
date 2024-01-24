@@ -22,7 +22,7 @@ namespace Blog.Server.Controllers
 
         [AuthorizeAnyType(AllowAnonymous = true)]
         [HttpGet]
-        public async Task<IActionResult> Get(PageRequestModel request)
+        public async Task<IActionResult> Get(PostSearchRequestModel request)
         {
             return await Execute(async () =>
             {
@@ -38,19 +38,6 @@ namespace Blog.Server.Controllers
         public async Task<IActionResult> Get(int id)
         {
             return await Execute(async () => new PostResponse(await postService.GetPost(id)));
-        }
-
-        [AuthorizeAnyType(AllowAnonymous = true)]
-        [HttpGet("search")]
-        public async Task<IActionResult> Search(PostSearchRequestModel request)
-        {
-            return await Execute(async () =>
-            {
-                var posts = postService.Search(request);
-                var postModels = posts.Select(p => new PostResponse.View(p));
-                var response = await PageResponse<PostResponse.View>.Create(postModels, request);
-                return response;
-            });
         }
 
         [HttpGet("search/tags")]

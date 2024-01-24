@@ -8,6 +8,7 @@ import { UserProfileComponent } from "./components/user-profile/user-profile.com
 
 export const routes: Routes = [
     { path: '', component: HomePageComponent },
+    { path: 'search', component: HomePageComponent},
     { path: 'login', component: LoginPageComponent },
     {
         path: 'post', children: [

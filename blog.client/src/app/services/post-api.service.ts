@@ -15,8 +15,14 @@ export class PostApiService extends BaseApiService {
     super(http);
   }
 
-  getPosts(page: number, pageSize: number) {
-    return this.http.get<BaseResponse<PageResponse<PostModelResponse>>>(`${this.url}?page=${page}&pageSize=${pageSize}`, this.httpOptions);
+  getPosts(page: number, pageSize: number, query: string = '') {
+    let url = `${this.url}?page=${page}&pageSize=${pageSize}`;
+    if (query) {
+      // query to URL encode
+      query = encodeURIComponent(query);
+      url += `&query=${query}`;
+    }
+    return this.http.get<BaseResponse<PageResponse<PostModelResponse>>>(url, this.httpOptions);
   }
 
   getPost(id: number) {
@@ -56,12 +62,7 @@ export class PostApiService extends BaseApiService {
     return this.http.delete<BaseResponse<PostModelResponse>>(`${this.url}/${id}`, this.httpOptions)
       .pipe(this.handleError<BaseResponse<PostModelResponse>>('getPost'));
   }
-
-  searchPosts(query: string, page: number, pageSize: number) {
-    return this.http.get<BaseResponse<PageResponse<PostModelResponse>>>(`${this.url}/search?query=${query}&page=${page}&pageSize=${pageSize}`, this.httpOptions)
-      .pipe(this.handleError<BaseResponse<PageResponse<PostModelResponse>>>('searchPosts'));
-  }
-
+  
   searchTags(query: string) {
     return this.http.get<BaseResponse<string[]>>(`${this.url}/search/tags?query=${query}`, this.httpOptions)
       .pipe(this.handleError<BaseResponse<string[]>>('searchTags'));

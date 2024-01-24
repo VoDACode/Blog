@@ -157,7 +157,7 @@ namespace Blog.Server.Services.PostService
             return post;
         }
 
-        public IQueryable<PostModel> GetPosts(PageRequestModel pageRequest)
+        public IQueryable<PostModel> GetPosts(PostSearchRequestModel requestModel)
         {
             var query = dbContext.Posts
                 .Include(p => p.Author)
@@ -166,6 +166,19 @@ namespace Blog.Server.Services.PostService
                 .Where(p => p.IsPublished || IsAdmin)
                 .OrderByDescending(p => p.CreatedAt)
                 .AsQueryable();
+
+            if (!string.IsNullOrWhiteSpace(requestModel.Query))
+            {
+                if (requestModel.Query.StartsWith("#"))
+                {
+                    requestModel.Query = requestModel.Query.Substring(1);
+                    query = query.Where(p => p.Tags.Any(t => t.Tag.Contains(requestModel.Query)));
+                }
+                else
+                {
+                    query = query.Where(p => p.Title.Contains(requestModel.Query));
+                }
+            }
 
             return query;
         }
@@ -217,20 +230,6 @@ namespace Blog.Server.Services.PostService
             await dbContext.SaveChangesAsync();
 
             return post;
-        }
-
-        public IQueryable<PostModel> Search(PostSearchRequestModel requestModel)
-        {
-            var query = dbContext.Posts
-                .Include(p => p.Author)
-                .Include(p => p.Tags)
-                .Include(p => p.Files)
-                .Where(p => p.IsPublished || IsAdmin)
-                .Where(p => p.Title.Contains(requestModel.Query) || p.Tags.Any(t => t.Tag.Contains(requestModel.Query)) || p.Content.Contains(requestModel.Query))
-                .OrderByDescending(p => p.CreatedAt)
-                .AsQueryable();
-
-            return query;
         }
 
         public async Task<IEnumerable<string>> SearchTags(string query)
