@@ -1,0 +1,12 @@
+.container {
+    max-width: 512px;
+    padding: 5px;
+    border-style: solid;
+    border-color: var(--bs-dark-border-subtle);
+    border-radius: 5px;
+}
+
+.button-box {
+    text-align: center;
+    margin-top: 10px;
+}

@@ -9,3 +9,13 @@
     padding: 3px;
     border-radius: 5px;
 }
+
+.post {
+    max-width: 1024px;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    border-style: solid;
+    border-color: var(--bs-secondary-bg);
+    border-radius: 5px;
+    margin-bottom: 10px;
+}

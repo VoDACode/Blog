@@ -1,0 +1,41 @@
+<form>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div>
+                    <label class="form-label">Username</label>
+                    <input class="form-control" type="text" [(ngModel)]="user.username" name="username" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div>
+                    <label class="form-label">Email</label>
+                    <input class="form-control" type="email" [(ngModel)]="user.email" name="email" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div>
+                    <label class="form-label">Old password</label>
+                    <input class="form-control" type="text" [(ngModel)]="user.oldPassword" name="oldPassword" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div>
+                    <label class="form-label">New password</label>
+                    <input class="form-control" type="text" [(ngModel)]="user.newPassword" name="newPassword" />
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col button-box">
+                <button class="btn btn-success" type="button" [disabled]="!hasChanges" (click)="onSubmit()">Save</button>
+            </div>
+        </div>
+    </div>
+</form>

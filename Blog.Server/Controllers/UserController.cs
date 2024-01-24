@@ -4,7 +4,9 @@ using Blog.Server.Enums;
 using Blog.Server.Extensions;
 using Blog.Server.Models.Requests;
 using Blog.Server.Models.Responses;
+using Blog.Server.Services.HashService;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Blog.Server.Controllers
 {
@@ -13,10 +15,12 @@ namespace Blog.Server.Controllers
     public class UserController : ControllerBase
     {
         protected readonly BlogDbContext dbContext;
+        protected readonly IHashService hashService;
 
-        public UserController(BlogDbContext dbContext)
+        public UserController(BlogDbContext dbContext, IHashService hashService)
         {
             this.dbContext = dbContext;
+            this.hashService = hashService;
         }
 
         [AuthorizeAnyType(Type = AuthorizeType.Any)]
@@ -55,6 +59,36 @@ namespace Blog.Server.Controllers
                 if (user == null)
                 {
                     return NotFound(BaseResponse.Fail($"User {HttpContext.GetUserId()} not found"));
+                }
+
+                if(await dbContext.Users.AnyAsync(x => x.Username == request.Username && x.Id != user.Id))
+                {
+                    return BadRequest(BaseResponse.Fail($"Username {request.Username} is already taken"));
+                }
+
+                if(await dbContext.Users.AnyAsync(x => x.Email == request.Email && x.Id != user.Id))
+                {
+                    return BadRequest(BaseResponse.Fail($"Email {request.Email} is already taken"));
+                }
+
+                if(!string.IsNullOrEmpty(request.NewPassword))
+                {
+                    if (string.IsNullOrEmpty(request.OldPassword))
+                    {
+                        return BadRequest(BaseResponse.Fail($"Old password is required"));
+                    }
+
+                    if(request.NewPassword == request.OldPassword)
+                    {
+                        return BadRequest(BaseResponse.Fail($"New password cannot be the same as old password"));
+                    }
+
+                    if(!hashService.Verify(request.OldPassword, user.PasswordHash))
+                    {
+                        return BadRequest(BaseResponse.Fail($"Old password is incorrect"));
+                    }
+
+                    user.PasswordHash = hashService.Hash(request.NewPassword);
                 }
 
                 user.Email = request.Email;

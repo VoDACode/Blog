@@ -10,7 +10,15 @@ export class UserResponseModel{
 export class UserUpdateRequestModel{
     username: string = '';
     email: string = '';
-    password: string = '';
+    oldPassword: string = '';
+    newPassword: string = '';
+
+    static fromResponse(response: UserResponseModel): UserUpdateRequestModel{
+        const model = new UserUpdateRequestModel();
+        model.username = response.username;
+        model.email = response.email || '';
+        return model;
+    }
 }
 
 export class UserLoginRequestModel{

@@ -14,7 +14,6 @@ export class HomePageComponent implements OnInit {
   private page: number = 1;
   private pageSize: number = 10;
   private maxPageCount: number = 50;
-  private isLoading: boolean = false;
 
   public loading: boolean = true;
   public posts: PostModelResponse[] = [];
@@ -29,6 +28,7 @@ export class HomePageComponent implements OnInit {
     this.postApi.getPosts(this.page, this.pageSize).subscribe(res => {
       this.posts = res.data?.items || [];
       this.loading = false;
+      setTimeout(this.onScroll.bind(this), 100);
     });
     this.userApi.getMe().subscribe(res => {
       this.userModel = res.data || new UserResponseModel();
@@ -43,10 +43,10 @@ export class HomePageComponent implements OnInit {
   }
 
   @HostListener('window:scroll', ['$event'])
-  onScroll(event: any) {
+  onScroll() {
     const pos = window.scrollY;
     const max = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    if (pos == max && this.page < this.maxPageCount) {
+    if ((pos == max || pos < 0) && this.page < this.maxPageCount) {
       this.loadMore();
     }
   }
@@ -59,7 +59,6 @@ export class HomePageComponent implements OnInit {
       if (res.data != null && res.data.items.length > 0) {
         this.maxPageCount = res.data.totalPagesCount;
         this.posts.push(...res.data?.items || []);
-        this.isLoading = false;
         this.loading = false;
       }
     });

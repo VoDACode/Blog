@@ -14,6 +14,7 @@ import { TextRenderComponent } from './components/text-render/text-render.compon
 import { FormsModule } from '@angular/forms';
 import { AuthGuard } from './auth.guard';
 import { CreatePostComponent } from './components/create-post/create-post.component';
+import { UserProfileComponent } from './components/user-profile/user-profile.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +22,8 @@ import { CreatePostComponent } from './components/create-post/create-post.compon
     NavigationComponent,
     PostComponent, CreatePostComponent, ImagePreviewComponent, TextRenderComponent,
     LoginPageComponent,
-    HomePageComponent
+    HomePageComponent,
+    UserProfileComponent
   ],
   imports: [
     FormsModule,
