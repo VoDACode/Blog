@@ -1,4 +1,4 @@
-<div class="container" *ngIf="!hasPosts && !loading">
+<div class="container" *ngIf="!hasPosts && !loading && !isSearch">
     <div class="row">
         <div class="col">
             <h1>Welcome to the Blog</h1>
@@ -10,7 +10,7 @@
         </div>
     </div>
 </div>
-<section *ngIf="hasPosts">
+<section *ngIf="hasPosts || isSearch">
     <div class="search">
         <input type="text" class="form-control" placeholder="Search" [(ngModel)]="searchText" (keyup)="searchKeyUp($event)">
         <div class="suggestions" *ngIf="tagSuggestions.length > 0">
@@ -19,7 +19,7 @@
             </div>
         </div>
     </div>
-    <app-post *ngFor="let post of posts" [post]="post" [userModel]="userModel" (delete)="deletePost($event)"></app-post>
+    <app-post *ngFor="let post of posts" [post]="post" [userModel]="userModel" [fromList]="true" (delete)="deletePost($event)"></app-post>
 </section>
 <!--loading animation-->
 <div class="loading" *ngIf="loading">

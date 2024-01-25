@@ -36,33 +36,51 @@ export class PostApiService extends BaseApiService {
     form.append('Content', post.content);
     form.append('IsPublished', post.isPublished.toString());
     form.append('HasComments', post.hasComments.toString());
-    
+
     post.tags.forEach(tag => {
       form.append('Tags', tag);
     });
-    
+
     if (files) {
       for (let file of files) {
         form.append('files', file);
       }
     }
 
-    console.log(form);
-
     return this.http.post<BaseResponse<PostModelResponse>>(`${this.url}`, form)
-      .pipe(this.handleError<BaseResponse<PostModelResponse>>('getPost'));
+      .pipe(this.handleError<BaseResponse<PostModelResponse>>('createPost'));
   }
 
-  updatePost(post: PostModelRequest) {
-    return this.http.put<BaseResponse<PostModelResponse>>(`${this.url}`, post, this.httpOptions)
-      .pipe(this.handleError<BaseResponse<PostModelResponse>>('getPost'));
+  updatePost(postId: number, post: PostModelRequest, newFiles: File[] | null, deleteFiles: number[] | null) {
+    let form = new FormData();
+    form.append('Title', post.title);
+    form.append('Content', post.content);
+    form.append('IsPublished', post.isPublished.toString());
+    form.append('HasComments', post.hasComments.toString());
+    post.tags.forEach(tag => {
+      form.append('Tags', tag);
+    });
+    if (newFiles) {
+      for (let file of newFiles) {
+        form.append('newFiles', file);
+      }
+    }
+
+    if (deleteFiles) {
+      for (let id of deleteFiles) {
+        form.append('DeletedFiles', id.toString());
+      }
+    }
+    
+    return this.http.put<BaseResponse<PostModelResponse>>(`${this.url}/${postId}`, form)
+      .pipe(this.handleError<BaseResponse<PostModelResponse>>('updatePost'));
   }
 
   deletePost(id: number) {
     return this.http.delete<BaseResponse<PostModelResponse>>(`${this.url}/${id}`, this.httpOptions)
-      .pipe(this.handleError<BaseResponse<PostModelResponse>>('getPost'));
+      .pipe(this.handleError<BaseResponse<PostModelResponse>>('deletePost'));
   }
-  
+
   searchTags(query: string) {
     return this.http.get<BaseResponse<string[]>>(`${this.url}/search/tags?query=${query}`, this.httpOptions)
       .pipe(this.handleError<BaseResponse<string[]>>('searchTags'));

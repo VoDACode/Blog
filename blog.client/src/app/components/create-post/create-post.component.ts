@@ -1,6 +1,8 @@
 import { Component, ElementRef, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { FileModelResponse } from 'src/app/models/file.model';
 import { PostFileModel, PostModelRequest } from 'src/app/models/post.model';
+import { FileApiService } from 'src/app/services/file-api.service';
 import { PostApiService } from 'src/app/services/post-api.service';
 import { environment } from 'src/environments/environment';
 
@@ -16,6 +18,9 @@ interface TagSuggestion{
 })
 export class CreatePostComponent {
   @ViewChild('fileInput') fileInput: ElementRef<HTMLInputElement> | undefined;
+
+  public isEditMode: boolean = false;
+
   public isPreview: boolean = false;
   public post: PostModelRequest = new PostModelRequest();
   public tag: string = '';
@@ -26,8 +31,13 @@ export class CreatePostComponent {
     return this.uploadedFiles.length > 0;
   }
 
+  private id: number = 0;
+
   _images: PostFileModel[] = [];
   _files: PostFileModel[] = [];
+
+  private deleteFiles: PostFileModel[] = [];
+  private newFiles: PostFileModel[] = [];
 
   get images() {
     return this._images;
@@ -37,7 +47,20 @@ export class CreatePostComponent {
     return this._files;
   }
 
-  constructor(private postApiService: PostApiService, private router: Router) {
+  constructor(private postApiService: PostApiService, private fileApiService: FileApiService, private router: Router, private activeRouter: ActivatedRoute) {
+    this.activeRouter.params.subscribe(params => {
+      let id = params['id'];
+      this.activeRouter.data.subscribe(data => {
+        this.isEditMode = data['editMode'] ?? false;
+        if(this.isEditMode) {
+          if(!id) {
+            this.router.navigate(['/']);
+            return;
+          }
+          this.loadPost(id);
+        }
+      });
+    });
   }
 
   searchTag(event: any) {
@@ -127,6 +150,9 @@ export class CreatePostComponent {
           } else {
             this._files.push(fileModel);
           }
+          if(this.isEditMode) {
+            this.newFiles.push(fileModel);
+          }
         }
       }
     }
@@ -136,20 +162,18 @@ export class CreatePostComponent {
     this._files = this._files.filter(f => f.uuid !== file.uuid);
     this._images = this._images.filter(f => f.uuid !== file.uuid);
     this.uploadedFiles = this.uploadedFiles.filter(f => f.uuid != file.uuid);
+    if(this.isEditMode) {
+      this.deleteFiles.push(file);
+      this.newFiles = this.newFiles.filter(f => f.uuid != file.uuid);
+    }
   }
 
   save() {
-    let files: File[] = [];
-    this.uploadedFiles.forEach(fileModel => {
-      if (fileModel.file instanceof File) {
-        files.push(fileModel.file);
-      }
-    });
-    this.postApiService.createPost(this.post, files).subscribe(post => {
-      if (post.success) {
-        this.router.navigate([`/post/${post.data?.id}`]);
-      }
-    });
+    if(this.isEditMode) {
+      this.editPost();
+    }else{
+      this.createPost();
+    }
   }
 
   getFileSize(file: PostFileModel) {
@@ -167,6 +191,70 @@ export class CreatePostComponent {
     date = new Date(date);
     date = new Date(date.getTime() + date.getTimezoneOffset() * 60 * 1000);
     return date.toLocaleString();
+  }
+
+  private editPost() {
+    console.log(this.post);
+    console.log(this.deleteFiles);
+    console.log(this.newFiles);
+
+    let files: File[] = [];
+    this.newFiles.forEach(fileModel => {
+      if (fileModel.file instanceof File) {
+        files.push(fileModel.file);
+      }
+    });
+
+    let deleteFilesIds: number[] = [];
+    this.deleteFiles.forEach(fileModel => {
+      if(fileModel.file instanceof FileModelResponse) {
+        console.log(fileModel.file);
+        deleteFilesIds.push(fileModel.file.id);
+      }
+    });
+
+    this.postApiService.updatePost(this.id, this.post, files, deleteFilesIds).subscribe(async post => {
+      if (post.success) {
+        this.router.navigate([`/post/${post.data?.id}`]);
+      }
+    });
+  }
+
+  private createPost(){
+    let files: File[] = [];
+    this.uploadedFiles.forEach(fileModel => {
+      if (fileModel.file instanceof File) {
+        files.push(fileModel.file);
+      }
+    });
+    this.postApiService.createPost(this.post, files).subscribe(post => {
+      if (post.success) {
+        this.router.navigate([`/post/${post.data?.id}`]);
+      }
+    });
+  }
+
+  private loadPost(id: number) {
+    this.postApiService.getPost(id).subscribe(post => {
+      if (post.success == false || post.data == undefined) {
+        this.post = new PostModelRequest();
+        this.router.navigate(['/']);
+        return;
+      }
+      this.id = post.data.id;
+      this.post = post.data;
+      this._files = post.data.files.filter(f => !f.contentType.startsWith('image')).map(f => {
+        let fileModel = new PostFileModel(f);
+        fileModel.file = new FileModelResponse(f);
+        return fileModel;
+      });
+      this._images = post.data.files.filter(f => f.contentType.startsWith('image')).map(f => {
+        let fileModel = new PostFileModel(f);
+        fileModel.file = new FileModelResponse(f);
+        return fileModel;
+      });
+      this.uploadedFiles = [...this._files, ...this._images];
+    });
   }
 }
 

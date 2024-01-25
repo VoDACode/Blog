@@ -1,8 +1,9 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { PostFileModel, PostModelResponse } from 'src/app/models/post.model';
 import { UserResponseModel } from 'src/app/models/user.model';
 import { PostApiService } from 'src/app/services/post-api.service';
+import { UserApiService } from 'src/app/services/user-api.service';
 import { environment } from 'src/environments/environment';
 
 @Component({
@@ -10,15 +11,16 @@ import { environment } from 'src/environments/environment';
   templateUrl: './post.component.html',
   styleUrls: ['./post.component.css']
 })
-export class PostComponent {
+export class PostComponent implements OnInit {
   @Input()
   post: PostModelResponse = new PostModelResponse();
+  @Input()
+  userModel: UserResponseModel = new UserResponseModel();
+  @Input()
+  fromList: boolean = false;
 
   @Output()
   delete: EventEmitter<PostModelResponse> = new EventEmitter<PostModelResponse>();
-
-  @Input()
-  userModel: UserResponseModel = new UserResponseModel();
 
   uploadedFiles: PostFileModel[] = [];
 
@@ -45,10 +47,10 @@ export class PostComponent {
     return this._files;
   }
 
-  constructor(private postApiService: PostApiService, private actionRouter: ActivatedRoute, private router: Router) {
+  constructor(private postApiService: PostApiService, private userApiService: UserApiService, private actionRouter: ActivatedRoute, private router: Router) {
     this.actionRouter.params.subscribe(params => {
       let id = params['id'];
-      if(!id) return;
+      if (!id) return;
       this.postApiService.getPost(Number(id)).subscribe(post => {
         if (post.success == false || post.data == undefined) {
           this.post = new PostModelResponse();
@@ -59,6 +61,13 @@ export class PostComponent {
       });
     });
 
+  }
+  ngOnInit(): void {
+    if (!this.fromList) {
+      this.userApiService.getMe().subscribe(res => {
+        this.userModel = res.data || new UserResponseModel();
+      });
+    }
   }
   getFileSize(file: PostFileModel) {
     var roundSizeTo = 10 ** environment.roundSizeTo;
@@ -89,6 +98,9 @@ export class PostComponent {
     this.postApiService.deletePost(this.post.id).subscribe(res => {
       if (res.success) {
         this.delete.emit(this.post);
+        if(!this.fromList) {
+          this.router.navigate(['/']);
+        }
       }
     });
   }

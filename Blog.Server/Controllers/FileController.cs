@@ -60,8 +60,19 @@ namespace Blog.Server.Controllers
                 return Unauthorized(BaseResponse.Fail($"User {HttpContext.GetUserId()} is not allowed to delete file {id}"));
             }
 
-            await fileStorage.DeleteFile(file);
-            return Ok(file);
+            try
+            {
+                dbContext.Files.Remove(file);
+                await dbContext.SaveChangesAsync();
+                await fileStorage.DeleteFile(file);
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, $"Failed to delete file {id}");
+                return BadRequest(BaseResponse.Fail($"Failed to delete file {id}"));
+            }
+
+            return Ok(BaseResponse.Ok());
         }
     }
 }

@@ -172,7 +172,7 @@ namespace Blog.Server.Services.PostService
                 if (requestModel.Query.StartsWith("#"))
                 {
                     requestModel.Query = requestModel.Query.Substring(1);
-                    query = query.Where(p => p.Tags.Any(t => t.Tag.Contains(requestModel.Query)));
+                    query = query.Where(p => p.Tags.Any(t => t.Tag == requestModel.Query));
                 }
                 else
                 {
@@ -183,7 +183,7 @@ namespace Blog.Server.Services.PostService
             return query;
         }
 
-        public async Task<PostModel> UpdatePost(int id, UpdatePostRequestModel requestModel)
+        public async Task<PostModel> UpdatePost(int id, UpdatePostRequestModel requestModel, IFormFileCollection? newFiles)
         {
             var userId = UserId ?? throw new UnauthorizedAccessException("User is not authenticated");
             var post = await dbContext.Posts
@@ -224,6 +224,43 @@ namespace Blog.Server.Services.PostService
                         tagModel = (await dbContext.Tags.AddAsync(tagModel)).Entity;
                     }
                     post.Tags.Add(tagModel);
+                }
+            }
+
+            if (newFiles != null)
+            {
+                foreach (var file in newFiles)
+                {
+                    var fileModel = new FileModel
+                    {
+                        Name = file.FileName,
+                        ContentType = file.ContentType,
+                        Size = file.Length,
+                        PostId = post.Id,
+                    };
+                    fileModel = (await dbContext.Files.AddAsync(fileModel)).Entity;
+                    await dbContext.SaveChangesAsync();
+                    await fileStorage.SaveFile(fileModel, file);
+                }
+            }
+
+            if (requestModel.DeletedFiles != null)
+            {
+                foreach (var fileId in requestModel.DeletedFiles)
+                {
+                    var file = await dbContext.Files.FirstOrDefaultAsync(f => f.Id == fileId);
+                    if (file != null)
+                    {
+                        try
+                        {
+                            await fileStorage.DeleteFile(file);
+                        }
+                        catch (Exception e)
+                        {
+                            logger.LogWarning(e.Message);
+                        }
+                        dbContext.Files.Remove(file);
+                    }
                 }
             }
 

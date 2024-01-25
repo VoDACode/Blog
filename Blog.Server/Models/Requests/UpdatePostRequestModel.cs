@@ -12,6 +12,6 @@ namespace Blog.Server.Models.Requests
         public bool IsPublished { get; set; } = false;
         public bool HasComments { get; set; } = false;
         public IEnumerable<string> Tags { get; set; } = new List<string>();
-        // public IEnumerable<int> Files { get; set; } = new List<int>();
+        public IEnumerable<int> DeletedFiles { get; set; } = new List<int>();
     }
 }

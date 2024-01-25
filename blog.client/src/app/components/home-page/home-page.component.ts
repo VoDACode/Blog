@@ -30,6 +30,10 @@ export class HomePageComponent implements OnInit {
     return this.posts.length > 0;
   }
 
+  public get isSearch() {
+    return this.searchText != '';
+  }
+
   constructor(private postApi: PostApiService, private userApi: UserApiService, private actionRouter: ActivatedRoute, private route: Router) { 
     this.actionRouter.queryParams.subscribe(params => {
       let query = params['q'] || '';
@@ -69,6 +73,7 @@ export class HomePageComponent implements OnInit {
       if(this.searchText == '') {
         this.route.navigate(['/']);
       }
+      this.tagSuggestions = [];
     }
 
     if(this.searchText.length == 0) {

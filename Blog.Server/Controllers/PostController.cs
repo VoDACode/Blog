@@ -61,9 +61,9 @@ namespace Blog.Server.Controllers
 
         [AuthorizeAnyType(Roles = "admin")]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, UpdatePostRequestModel requestModel)
+        public async Task<IActionResult> Put(int id, [FromForm] UpdatePostRequestModel requestModel, [FromForm] IFormFileCollection newFiles)
         {
-            return await Execute(async () => new PostResponse(await postService.UpdatePost(id, requestModel)));
+            return await Execute(async () => new PostResponse(await postService.UpdatePost(id, requestModel, newFiles)));
         }
 
         [AuthorizeAnyType(Roles = "admin")]

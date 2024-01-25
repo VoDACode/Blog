@@ -14,7 +14,7 @@ export class PostModelResponse implements PostModelRequest {
     title: string = "";
     content: string = "";
     createdAt: Date = new Date();
-    updatedAt: Date = new Date();
+    updatedAt: Date | null = null;
     hasComments: boolean = false;
     isPublished: boolean = false;
     author: string = "";
