@@ -39,7 +39,7 @@ namespace Blog.Server.Services.PostService
                 AuthorId = userId,
                 Author = author,
                 CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow,
+                UpdatedAt = null,
                 HasComments = requestModel.HasComments,
                 IsPublished = requestModel.IsPublished
             };
