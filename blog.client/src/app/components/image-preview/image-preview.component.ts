@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { Component, ElementRef, EventEmitter, Input, Output, ViewChild } from '@angular/core';
 import { PostFileModel } from 'src/app/models/post.model';
 
 @Component({
@@ -18,9 +18,11 @@ export class ImagePreviewComponent {
   @Input()
   public canDelete: boolean = false;
 
-
   @Output()
   public delete: EventEmitter<PostFileModel> = new EventEmitter<PostFileModel>();
+
+  @ViewChild('scrollBox')
+  public scrollBox: ElementRef<HTMLDivElement> | undefined;
 
   public imageModels: ImageModel[] = [];
 
@@ -48,6 +50,12 @@ export class ImagePreviewComponent {
       }
     }
     this.imageModels = this.imageModels.filter(img => img !== image);
+  }
+
+  public scrollListEvent(event: WheelEvent): void {
+    if (this.scrollBox) {
+      this.scrollBox.nativeElement.scrollLeft += event.deltaY;
+    }
   }
 }
 
