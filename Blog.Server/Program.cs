@@ -14,6 +14,11 @@ using VoDA.AspNetCore.Services.Email;
 
 var builder = WebApplication.CreateBuilder(args);
 
+if(!builder.Environment.IsDevelopment())
+{
+    builder.WebHost.UseUrls("http://0.0.0.0:5080;https://0.0.0.0:5081");
+}
+
 builder.Services.Configure<SystemConfigModel>(builder.Configuration.GetSection("System"));
 builder.Services.Configure<DefaultUserConfigModel>(builder.Configuration.GetSection("Defaults:User"));
 builder.Services.Configure<JWTConfigModel>(builder.Configuration.GetSection("JWT"));
