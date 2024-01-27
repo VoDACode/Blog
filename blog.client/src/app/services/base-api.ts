@@ -20,6 +20,10 @@ export abstract class BaseApiService {
     }
     protected handleError<T>(operation = 'operation') {
         return catchError<T, Observable<T>>((e) => {
+            if(e.status == 401) {
+                console.log('401');
+                localStorage.removeItem('isLoggedin');
+            }
             console.error(`${operation} failed: ${e.message}`);
             return of(e.error as T);
         });

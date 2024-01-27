@@ -60,6 +60,8 @@ namespace Blog.Server.Controllers
         }
 
         [AuthorizeAnyType(Roles = "admin")]
+        // set max request length to 2gb
+        [RequestSizeLimit(2_147_483_647)]
         [HttpPut("{id}")]
         public async Task<IActionResult> Put(int id, [FromForm] UpdatePostRequestModel requestModel, [FromForm] IFormFileCollection newFiles)
         {

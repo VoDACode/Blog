@@ -71,7 +71,7 @@ export class PostApiService extends BaseApiService {
         form.append('DeletedFiles', id.toString());
       }
     }
-    
+
     return this.http.put<BaseResponse<PostModelResponse>>(`${this.url}/${postId}`, form)
       .pipe(this.handleError<BaseResponse<PostModelResponse>>('updatePost'));
   }

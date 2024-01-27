@@ -2,11 +2,10 @@ import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { FileModelResponse } from 'src/app/models/file.model';
 import { PostFileModel, PostModelRequest } from 'src/app/models/post.model';
-import { FileApiService } from 'src/app/services/file-api.service';
 import { PostApiService } from 'src/app/services/post-api.service';
 import { environment } from 'src/environments/environment';
 
-interface TagSuggestion{
+interface TagSuggestion {
   tag: string;
   selected: boolean;
 }
@@ -33,27 +32,19 @@ export class CreatePostComponent {
 
   private id: number = 0;
 
-  _images: PostFileModel[] = [];
-  _files: PostFileModel[] = [];
+  public images: PostFileModel[] = [];
+  public files: PostFileModel[] = [];
 
   private deleteFiles: PostFileModel[] = [];
   private newFiles: PostFileModel[] = [];
 
-  get images() {
-    return this._images;
-  }
-
-  get files() {
-    return this._files;
-  }
-
-  constructor(private postApiService: PostApiService, private fileApiService: FileApiService, private router: Router, private activeRouter: ActivatedRoute) {
+  constructor(private postApiService: PostApiService, private router: Router, private activeRouter: ActivatedRoute) {
     this.activeRouter.params.subscribe(params => {
       let id = params['id'];
       this.activeRouter.data.subscribe(data => {
         this.isEditMode = data['editMode'] ?? false;
-        if(this.isEditMode) {
-          if(!id) {
+        if (this.isEditMode) {
+          if (!id) {
             this.router.navigate(['/']);
             return;
           }
@@ -64,32 +55,32 @@ export class CreatePostComponent {
   }
 
   searchTag(event: any) {
-    if(event.key == 'Enter') {
+    if (event.key == 'Enter') {
       this.addTag(this.tag);
       return;
     }
 
-    if(this.tag == ''){
+    if (this.tag == '') {
       this.tagSuggestion = [];
     }
 
-    if(event.key == 'Backspace' && this.tag == '') {
+    if (event.key == 'Backspace' && this.tag == '') {
       this.post.tags.pop();
       return;
     }
 
-    if(event.key == 'ArrowDown' || event.key == 'ArrowUp') {
+    if (event.key == 'ArrowDown' || event.key == 'ArrowUp') {
       let index = this.tagSuggestion.findIndex(p => p.selected);
-      if(index != -1) {
+      if (index != -1) {
         this.tagSuggestion[index].selected = false;
-        if(event.key == 'ArrowDown') {
+        if (event.key == 'ArrowDown') {
           index++;
-          if(index >= this.tagSuggestion.length) {
+          if (index >= this.tagSuggestion.length) {
             index = 0;
           }
-        }else{
+        } else {
           index--;
-          if(index < 0) {
+          if (index < 0) {
             index = this.tagSuggestion.length - 1;
           }
         }
@@ -108,11 +99,11 @@ export class CreatePostComponent {
       this.postApiService.searchTags(this.tag).subscribe(tags => {
         this.tagSuggestion = [];
         let result = tags.data?.map(p => {
-          return {tag: p, selected: false};
+          return { tag: p, selected: false };
         }) ?? [];
         let index = result.findIndex(p => p.tag == this.tag);
         if (index == -1) {
-          this.tagSuggestion.push({tag: this.tag, selected: false});
+          this.tagSuggestion.push({ tag: this.tag, selected: false });
         }
         this.tagSuggestion = [...this.tagSuggestion, ...result];
         this.tagSuggestion[0].selected = true;
@@ -141,37 +132,36 @@ export class CreatePostComponent {
   onFileChange(event: any) {
     if (event.target.files && event.target.files.length > 0) {
       for (let i = 0; i < event.target.files.length; i++) {
-        const file = event.target.files[i];
-        if (!this.uploadedFiles.find(f => f.name == file.name)) {
-          let fileModel = new PostFileModel(file);
-          this.uploadedFiles.push(fileModel);
-          if (file.type.startsWith('image')) {
-            this._images.push(fileModel);
-          } else {
-            this._files.push(fileModel);
-          }
-          if(this.isEditMode) {
-            this.newFiles.push(fileModel);
-          }
+        const file: File = event.target.files[i];
+        let fileModel = new PostFileModel(file);
+        this.uploadedFiles.push(fileModel);
+        if (fileModel.contentType.startsWith('image')) {
+          this.images.push(fileModel);
+        } else {
+          this.files.push(fileModel);
+        }
+        if (this.isEditMode) {
+          this.newFiles.push(fileModel);
         }
       }
     }
+    this.images = [...this.images];
   }
 
   onDeleteFile(file: PostFileModel) {
-    this._files = this._files.filter(f => f.uuid !== file.uuid);
-    this._images = this._images.filter(f => f.uuid !== file.uuid);
+    this.files = this.files.filter(f => f.uuid !== file.uuid);
+    this.images = this.images.filter(f => f.uuid !== file.uuid);
     this.uploadedFiles = this.uploadedFiles.filter(f => f.uuid != file.uuid);
-    if(this.isEditMode) {
+    if (this.isEditMode) {
       this.deleteFiles.push(file);
       this.newFiles = this.newFiles.filter(f => f.uuid != file.uuid);
     }
   }
 
   save() {
-    if(this.isEditMode) {
+    if (this.isEditMode) {
       this.editPost();
-    }else{
+    } else {
       this.createPost();
     }
   }
@@ -194,10 +184,6 @@ export class CreatePostComponent {
   }
 
   private editPost() {
-    console.log(this.post);
-    console.log(this.deleteFiles);
-    console.log(this.newFiles);
-
     let files: File[] = [];
     this.newFiles.forEach(fileModel => {
       if (fileModel.file instanceof File) {
@@ -207,7 +193,7 @@ export class CreatePostComponent {
 
     let deleteFilesIds: number[] = [];
     this.deleteFiles.forEach(fileModel => {
-      if(fileModel.file instanceof FileModelResponse) {
+      if (fileModel.file instanceof FileModelResponse) {
         console.log(fileModel.file);
         deleteFilesIds.push(fileModel.file.id);
       }
@@ -220,7 +206,7 @@ export class CreatePostComponent {
     });
   }
 
-  private createPost(){
+  private createPost() {
     let files: File[] = [];
     this.uploadedFiles.forEach(fileModel => {
       if (fileModel.file instanceof File) {
@@ -243,17 +229,17 @@ export class CreatePostComponent {
       }
       this.id = post.data.id;
       this.post = post.data;
-      this._files = post.data.files.filter(f => !f.contentType.startsWith('image')).map(f => {
+      this.files = post.data.files.filter(f => !f.contentType.startsWith('image')).map(f => {
         let fileModel = new PostFileModel(f);
         fileModel.file = new FileModelResponse(f);
         return fileModel;
       });
-      this._images = post.data.files.filter(f => f.contentType.startsWith('image')).map(f => {
+      this.images = post.data.files.filter(f => f.contentType.startsWith('image')).map(f => {
         let fileModel = new PostFileModel(f);
         fileModel.file = new FileModelResponse(f);
         return fileModel;
       });
-      this.uploadedFiles = [...this._files, ...this._images];
+      this.uploadedFiles = [...this.files, ...this.images];
     });
   }
 }

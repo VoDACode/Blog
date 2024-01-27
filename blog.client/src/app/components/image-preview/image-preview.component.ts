@@ -14,6 +14,9 @@ export class ImagePreviewComponent {
       this.imageModels[0].selected = true;
     }
   }
+  get images(): PostFileModel[] {
+    return this.imageModels.map(image => image.file);
+  }
 
   @Input()
   public canDelete: boolean = false;
