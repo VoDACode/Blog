@@ -1,9 +1,10 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ViewEncapsulation } from '@angular/core';
 
 @Component({
   selector: 'app-text-render',
   templateUrl: './text-render.component.html',
-  styleUrls: ['./text-render.component.css']
+  styleUrls: ['./text-render.component.css'],
+  encapsulation: ViewEncapsulation.None
 })
 export class TextRenderComponent {
   @Input()

@@ -1,0 +1,8 @@
+.text {
+    text-align: justify;
+    font-size: 18px;
+}
+.text img {
+    max-width: 100%;
+    height: auto;
+}
