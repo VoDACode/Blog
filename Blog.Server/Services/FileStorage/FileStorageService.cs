@@ -90,10 +90,25 @@ namespace Blog.Server.Services.FileStorage
             }
             fileFullPath = Path.Combine(fileFullPath, pathParts.Last());
 
-            using (var fs = new FileStream(fileFullPath, FileMode.CreateNew, FileAccess.Write))
+            using (var fs = new FileStream(fileFullPath, FileMode.CreateNew, FileAccess.Write, FileShare.Write, 24 * 1024))
             {
                 await fileStream.CopyToAsync(fs);
             }
+        }
+
+        public Task<long> Size(string pathToFile)
+        {
+            if (pathToFile == null)
+            {
+                throw new ArgumentNullException("pathToFile");
+            }
+
+            if (!File.Exists(GetFullPath(pathToFile)))
+            {
+                throw new FileNotFoundException("File not found", pathToFile);
+            }
+
+            return Task.FromResult(new FileInfo(GetFullPath(pathToFile)).Length);
         }
     }
 }

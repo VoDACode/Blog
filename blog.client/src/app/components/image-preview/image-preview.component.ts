@@ -55,10 +55,12 @@ export class ImagePreviewComponent {
     this.imageModels = this.imageModels.filter(img => img !== image);
   }
 
-  public scrollListEvent(event: WheelEvent): void {
+  public scrollListEvent(event: WheelEvent): boolean {
     if (this.scrollBox) {
       this.scrollBox.nativeElement.scrollLeft += event.deltaY;
+      return false;
     }
+    return true;
   }
 }
 

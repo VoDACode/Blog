@@ -26,7 +26,7 @@ namespace Blog.Server.Services.PostService
             this.logger = logger;
         }
 
-        public async Task<PostModel> CreatePost(CreatePostRequestModel requestModel, IFormFileCollection? files)
+        public async Task<PostModel> CreatePost(CreatePostRequestModel requestModel)
         {
             var userId = UserId ?? throw new UnauthorizedAccessException("User is not authenticated");
 
@@ -65,26 +65,6 @@ namespace Blog.Server.Services.PostService
             }
 
             await dbContext.SaveChangesAsync();
-
-            if (files != null)
-            {
-                foreach (var file in files)
-                {
-                    var fileModel = new FileModel
-                    {
-                        Name = file.FileName,
-                        ContentType = file.ContentType,
-                        Size = file.Length,
-                        PostId = post.Id,
-                    };
-                    fileModel = (await dbContext.Files.AddAsync(fileModel)).Entity;
-                    await dbContext.SaveChangesAsync();
-                    await fileStorage.SaveFile(fileModel, file);
-                }
-            }
-
-            await dbContext.SaveChangesAsync();
-
             return post;
         }
 
@@ -183,7 +163,7 @@ namespace Blog.Server.Services.PostService
             return query;
         }
 
-        public async Task<PostModel> UpdatePost(int id, UpdatePostRequestModel requestModel, IFormFileCollection? newFiles)
+        public async Task<PostModel> UpdatePost(int id, UpdatePostRequestModel requestModel)
         {
             var userId = UserId ?? throw new UnauthorizedAccessException("User is not authenticated");
             var post = await dbContext.Posts
@@ -224,23 +204,6 @@ namespace Blog.Server.Services.PostService
                         tagModel = (await dbContext.Tags.AddAsync(tagModel)).Entity;
                     }
                     post.Tags.Add(tagModel);
-                }
-            }
-
-            if (newFiles != null)
-            {
-                foreach (var file in newFiles)
-                {
-                    var fileModel = new FileModel
-                    {
-                        Name = file.FileName,
-                        ContentType = file.ContentType,
-                        Size = file.Length,
-                        PostId = post.Id,
-                    };
-                    fileModel = (await dbContext.Files.AddAsync(fileModel)).Entity;
-                    await dbContext.SaveChangesAsync();
-                    await fileStorage.SaveFile(fileModel, file);
                 }
             }
 

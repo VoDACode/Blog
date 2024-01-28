@@ -15,6 +15,8 @@ import { FormsModule } from '@angular/forms';
 import { AuthGuard } from './auth.guard';
 import { CreatePostComponent } from './components/create-post/create-post.component';
 import { UserProfileComponent } from './components/user-profile/user-profile.component';
+import { TestPageComponent } from './components/test-page/test-page.component';
+import { ProgressBarComponent } from './components/progress-bar/progress-bar.component';
 
 @NgModule({
   declarations: [
@@ -23,7 +25,9 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
     PostComponent, CreatePostComponent, ImagePreviewComponent, TextRenderComponent,
     LoginPageComponent,
     HomePageComponent,
-    UserProfileComponent
+    UserProfileComponent,
+    ProgressBarComponent,
+    TestPageComponent
   ],
   imports: [
     FormsModule,

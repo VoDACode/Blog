@@ -5,6 +5,12 @@ namespace Blog.Server.Extensions
 {
     public static class FileStorageExtension
     {
+        public static async Task SaveFile(this IFileStorage fileStorage, FileModel model, Stream stream)
+        {
+            var fileName = $"{model.Id}{Path.GetExtension(model.Name)}";
+            await fileStorage.Upload(fileName, stream);
+        }
+
         public static async Task SaveFile(this IFileStorage fileStorage, FileModel model, IFormFile file)
         {
             var fileName = $"{model.Id}{Path.GetExtension(file.FileName)}";
@@ -25,6 +31,12 @@ namespace Blog.Server.Extensions
         {
             var fileName = $"{model.Id}{Path.GetExtension(model.Name)}";
             return await fileStorage.Download(fileName);
+        }
+
+        public static async Task<long> Size(this IFileStorage fileStorage, FileModel model)
+        {
+            var fileName = $"{model.Id}{Path.GetExtension(model.Name)}";
+            return await fileStorage.Size(fileName);
         }
     }
 }

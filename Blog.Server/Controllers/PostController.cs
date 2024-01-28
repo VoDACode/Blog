@@ -51,21 +51,17 @@ namespace Blog.Server.Controllers
         }
 
         [AuthorizeAnyType(Roles = "admin")]
-        // set max request length to 2gb
-        [RequestSizeLimit(2_147_483_647)]
         [HttpPost]
-        public async Task<IActionResult> Post([FromForm] CreatePostRequestModel requestModel, [FromForm] IFormFileCollection files)
+        public async Task<IActionResult> Post([FromForm] CreatePostRequestModel requestModel)
         {
-            return await Execute(async () => new PostResponse(await postService.CreatePost(requestModel, files)));
+            return await Execute(async () => new PostResponse(await postService.CreatePost(requestModel)));
         }
 
         [AuthorizeAnyType(Roles = "admin")]
-        // set max request length to 2gb
-        [RequestSizeLimit(2_147_483_647)]
         [HttpPut("{id}")]
-        public async Task<IActionResult> Put(int id, [FromForm] UpdatePostRequestModel requestModel, [FromForm] IFormFileCollection newFiles)
+        public async Task<IActionResult> Put(int id, [FromForm] UpdatePostRequestModel requestModel)
         {
-            return await Execute(async () => new PostResponse(await postService.UpdatePost(id, requestModel, newFiles)));
+            return await Execute(async () => new PostResponse(await postService.UpdatePost(id, requestModel)));
         }
 
         [AuthorizeAnyType(Roles = "admin")]

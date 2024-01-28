@@ -40,6 +40,9 @@
                     </svg>
                     <a href="{{fileModel.url}}">{{fileModel.name}}</a>
                 </div>
+                <div class="col align-self-center" *ngIf="!fileModel.isUploaded && fileModel.processing">
+                    <app-progress-bar [progress]="fileModel.progress"></app-progress-bar>
+                </div>
                 <div class="col offset-xl-0 align-self-center" style="text-align: right;">
                     <a class="btn btn-danger" (click)="onDeleteFile(fileModel)" style="margin-right: 10px;">Delete</a>
                     <span>{{getFileSize(fileModel)}}</span>

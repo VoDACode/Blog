@@ -4,11 +4,11 @@ namespace Blog.Server.Models.Responses
 {
     public class FileResponse : BaseResponse
     {
-        protected FileResponse(FileModel model) : base(true, new View(model))
+        public FileResponse(FileModel model) : base(true, new View(model))
         {
         }
 
-        protected FileResponse(IEnumerable<FileModel> models) : base(true, null)
+        public FileResponse(IEnumerable<FileModel> models) : base(true, null)
         {
             Data = models.Select(m => new View(m)).ToList();
         }

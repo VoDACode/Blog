@@ -30,7 +30,7 @@ export class PostApiService extends BaseApiService {
       .pipe(this.handleError<BaseResponse<PostModelResponse>>('getPost'))
   }
 
-  createPost(post: PostModelRequest, files: File[] | null) {
+  createPost(post: PostModelRequest) {
     let form = new FormData();
     form.append('Title', post.title);
     form.append('Content', post.content);
@@ -40,18 +40,12 @@ export class PostApiService extends BaseApiService {
     post.tags.forEach(tag => {
       form.append('Tags', tag);
     });
-
-    if (files) {
-      for (let file of files) {
-        form.append('files', file);
-      }
-    }
 
     return this.http.post<BaseResponse<PostModelResponse>>(`${this.url}`, form)
       .pipe(this.handleError<BaseResponse<PostModelResponse>>('createPost'));
   }
 
-  updatePost(postId: number, post: PostModelRequest, newFiles: File[] | null, deleteFiles: number[] | null) {
+  updatePost(postId: number, post: PostModelRequest, deleteFiles: number[] | null) {
     let form = new FormData();
     form.append('Title', post.title);
     form.append('Content', post.content);
@@ -60,11 +54,6 @@ export class PostApiService extends BaseApiService {
     post.tags.forEach(tag => {
       form.append('Tags', tag);
     });
-    if (newFiles) {
-      for (let file of newFiles) {
-        form.append('newFiles', file);
-      }
-    }
 
     if (deleteFiles) {
       for (let id of deleteFiles) {

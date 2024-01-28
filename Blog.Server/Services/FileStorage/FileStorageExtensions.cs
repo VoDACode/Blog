@@ -4,7 +4,7 @@
     {
         public static IServiceCollection AddFileStorage(this IServiceCollection services, Action<FileStorageServiceConfig> options)
         {
-            services.AddSingleton<IFileStorage, FileStorageService>();
+            services.AddScoped<IFileStorage, FileStorageService>();
             services.Configure(options);
             return services;
         }

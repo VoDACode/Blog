@@ -22,6 +22,11 @@
                             </svg>
                         </a>
                         <img src="{{image.file.url}}">
+                        <div class="processing"  *ngIf="image.file.processing && !image.file.isUploaded">
+                            <div>
+                                <app-progress-bar [progress]="image.file.progress"></app-progress-bar>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>

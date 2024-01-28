@@ -105,3 +105,23 @@
 .image-item .remove-btn:active i {
     opacity: 0.5;
 }
+
+.image-item .processing{
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 2;
+    width: 100%;
+    height: 100%;
+    border-radius: 3px;
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 12px;
+}
+
+.image-item .processing > div{
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+}

@@ -5,6 +5,7 @@ import { PostComponent } from "./components/post/post.component";
 import { AuthGuard } from "./auth.guard";
 import { CreatePostComponent } from "./components/create-post/create-post.component";
 import { UserProfileComponent } from "./components/user-profile/user-profile.component";
+import { TestPageComponent } from "./components/test-page/test-page.component";
 
 export const routes: Routes = [
     { path: '', component: HomePageComponent },
@@ -25,5 +26,6 @@ export const routes: Routes = [
         ]
     },
     { path: 'profile', component: UserProfileComponent, canActivate: [AuthGuard] },
+    { path: 'test', component: TestPageComponent, canActivate: [AuthGuard]},
     { path: '**', redirectTo: '' }
 ];

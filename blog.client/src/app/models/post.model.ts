@@ -64,6 +64,14 @@ export class PostFileModel {
         }
     }
 
+    public progress: number = 0;
+
+    public get isUploaded() {
+        return this.file instanceof FileModelResponse;
+    }
+
+    public processing: boolean = false;
+
     constructor(file: FileModelResponse | File) {
         this.file = file;
         this._uuid = this.uuidv4();

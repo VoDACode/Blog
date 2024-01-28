@@ -1,7 +1,10 @@
+import { HttpEventType } from '@angular/common/http';
 import { Component, ElementRef, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { Observable, combineLatest, filter, forkJoin, map } from 'rxjs';
 import { FileModelResponse } from 'src/app/models/file.model';
 import { PostFileModel, PostModelRequest } from 'src/app/models/post.model';
+import { FileApiService } from 'src/app/services/file-api.service';
 import { PostApiService } from 'src/app/services/post-api.service';
 import { environment } from 'src/environments/environment';
 
@@ -38,7 +41,7 @@ export class CreatePostComponent {
   private deleteFiles: PostFileModel[] = [];
   private newFiles: PostFileModel[] = [];
 
-  constructor(private postApiService: PostApiService, private router: Router, private activeRouter: ActivatedRoute) {
+  constructor(private postApiService: PostApiService, private fileApiService: FileApiService, private router: Router, private activeRouter: ActivatedRoute) {
     this.activeRouter.params.subscribe(params => {
       let id = params['id'];
       this.activeRouter.data.subscribe(data => {
@@ -184,13 +187,6 @@ export class CreatePostComponent {
   }
 
   private editPost() {
-    let files: File[] = [];
-    this.newFiles.forEach(fileModel => {
-      if (fileModel.file instanceof File) {
-        files.push(fileModel.file);
-      }
-    });
-
     let deleteFilesIds: number[] = [];
     this.deleteFiles.forEach(fileModel => {
       if (fileModel.file instanceof FileModelResponse) {
@@ -198,24 +194,32 @@ export class CreatePostComponent {
         deleteFilesIds.push(fileModel.file.id);
       }
     });
-
-    this.postApiService.updatePost(this.id, this.post, files, deleteFilesIds).subscribe(async post => {
-      if (post.success) {
-        this.router.navigate([`/post/${post.data?.id}`]);
+    
+    this.postApiService.updatePost(this.id, this.post, deleteFilesIds).subscribe(async post => {
+      if (post.success && post.data != undefined) {
+        this.fileApiService.uploadFiles(post.data.id, this.newFiles, {
+          complete: () => {
+            this.router.navigate([`/post/${post.data?.id}`]);
+          },
+          error: (error) => {
+            console.error('Error during file uploads:', error);
+          }
+        });
       }
     });
   }
 
   private createPost() {
-    let files: File[] = [];
-    this.uploadedFiles.forEach(fileModel => {
-      if (fileModel.file instanceof File) {
-        files.push(fileModel.file);
-      }
-    });
-    this.postApiService.createPost(this.post, files).subscribe(post => {
-      if (post.success) {
-        this.router.navigate([`/post/${post.data?.id}`]);
+    this.postApiService.createPost(this.post).subscribe(post => {
+      if (post.success && post.data != undefined) {
+        this.fileApiService.uploadFiles(post.data.id, this.uploadedFiles, {
+          complete: () => {
+            this.router.navigate([`/post/${post.data?.id}`]);
+          },
+          error: (error) => {
+            console.error('Error during file uploads:', error);
+          }
+        });
       }
     });
   }
@@ -243,5 +247,3 @@ export class CreatePostComponent {
     });
   }
 }
-
-

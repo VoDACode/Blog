@@ -8,6 +8,7 @@ using Blog.Server.Services.PostService;
 using Blog.Server.Tools;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using VoDA.AspNetCore.Services.Email;
@@ -70,6 +71,12 @@ builder.Services.AddAuthentication(options =>
         ValidAudience = authConfig.Audience,
         IssuerSigningKey = authConfig.GetSymmetricSecurityKey()
     };
+});
+
+builder.Services.Configure<FormOptions>(options =>
+{
+    // Set the limit to 25Gb
+    options.MultipartBodyLengthLimit = 26_843_545_600;
 });
 
 builder.Services.AddDbContext<BlogDbContext>(options =>

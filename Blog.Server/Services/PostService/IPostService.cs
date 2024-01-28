@@ -8,8 +8,8 @@ namespace Blog.Server.Services.PostService
         public Task<IEnumerable<string>> SearchTags(string query);
         public Task<PostModel> GetPost(int id);
         public IQueryable<PostModel> GetPosts(PostSearchRequestModel pageRequest);
-        public Task<PostModel> CreatePost(CreatePostRequestModel requestModel, IFormFileCollection? files);
-        public Task<PostModel> UpdatePost(int id, UpdatePostRequestModel requestModel, IFormFileCollection? newFiles);
+        public Task<PostModel> CreatePost(CreatePostRequestModel requestModel);
+        public Task<PostModel> UpdatePost(int id, UpdatePostRequestModel requestModel);
         public Task<PostModel> DeletePost(int id);
     }
 }
