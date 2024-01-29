@@ -88,12 +88,12 @@ namespace Blog.Server.Services.AuthService
         public async Task<bool> Login(string username, string password)
         {
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Username == username);
-            if (user == null)
+            if (user == null || user.IsBanned)
             {
                 return false;
             }
 
-            if (hashService.Verify(password, user.PasswordHash))
+            if (!hashService.Verify(password, user.PasswordHash))
             {
                 return false;
             }
@@ -120,7 +120,7 @@ namespace Blog.Server.Services.AuthService
                 return false;
             }
             var user = await _context.Users.SingleOrDefaultAsync(u => u.Id == userId);
-            if (user == null)
+            if (user == null || user.IsBanned)
             {
                 return false;
             }
