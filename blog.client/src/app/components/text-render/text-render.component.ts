@@ -20,6 +20,9 @@ export class TextRenderComponent {
   private processText() {
     this.processedText = this.text;
 
+    // parse color and background-color [text]({color: red; background-color: blue})
+    this.processedText = this.processedText.replace(/(\[([^\]]+)\]\(\{([^\}]+)\}\))/gm, '\n<span style="$3">$2</span>');
+
     // fix html tags
     this.processedText = this.processedText.replace(/(\&)/g, '&amp;');
     this.processedText = this.processedText.replace(/(\")/g, '&quot;');
@@ -27,18 +30,19 @@ export class TextRenderComponent {
     this.processedText = this.processedText.replace(/(\\`)/g, '&#x60;');
 
     // '- ' -> ul
-    this.processedText = this.processedText.replace(/(\n|^)(\- ([^\n]+))+/gm, '<ul>$&</ul>');
+    this.processedText = this.processedText.replace(/(\n|^)(\- ([^\n]+))+$/gm, '\n<ul>$&</ul>');
     // '1. ' -> ol
-    this.processedText = this.processedText.replace(/(\n|^)(\d\. ([^\n]+))+/gm, '<ol>$&</ol>');
+    this.processedText = this.processedText.replace(/(\n|^)(\d\. ([^\n]+))+$/gm, '\n<ol>$&</ol>');
     // '> ' -> blockquote
-    this.processedText = this.processedText.replace(/(\n|^)\> ([^\n]+)+/gm, '<blockquote>$2</blockquote>');
+    this.processedText = this.processedText.replace(/(\n|^)\> ([^\n]+)+$/gm, '\n<blockquote>$2</blockquote>');
     // '* ' -> li
-    this.processedText = this.processedText.replace(/(\n|^)\* ([^\n]+)+/gm, '<li>$2</li>');
+    this.processedText = this.processedText.replace(/(\n|^)\* ([^\n]+)+$/gm, '\n<li>$2</li>');
 
     this.processedText = this.processedText.replace(/(\*\*([^\*]+)\*\*)/g, '<b>$2</b>');
     this.processedText = this.processedText.replace(/(\*([^\*]+)\*)/g, '<i>$2</i>');
     this.processedText = this.processedText.replace(/(\~\~([^\~]+)\~\~)/g, '<s>$2</s>');
     this.processedText = this.processedText.replace(/(\_\_([^\_]+)\_\_)/g, '<u>$2</u>');
+
     this.processedText = this.processedText.replace(/(\`{3}([^\`]+)\`{3})/g, '<pre><code>$2</code></pre>');
     this.processedText = this.processedText.replace(/(\!\[([^\]]+)\]\(([^\)]+)\))/g, '<img src="$3" alt="$2">');
     this.processedText = this.processedText.replace(/(\[([^\]]+)\]\(([^\)]+)\))/g, '<a href="$3" target="_blank">$2</a>');
@@ -48,7 +52,8 @@ export class TextRenderComponent {
       this.processedText = this.processedText.replace(regex, `<h${i}>$1</h${i}><hr>`);
     }
 
-    this.processedText = this.processedText.replace(/!?(^#{1}\s[^\n]+)(\n{1})/gm, '<br>');
+    // \n\n * \n\n -> <p> * </p>
+    this.processedText = this.processedText.replace(/(\n{2})([^\n]+)(\n{2})/gm, '<p>$2</p>');
   }
 
 

@@ -2,7 +2,17 @@
     text-align: justify;
     font-size: 18px;
 }
+
 .text img {
     max-width: 100%;
     height: auto;
+}
+
+.text ul,
+.text ol,
+.text li,
+.text p {
+    margin: 0;
+    padding: 0;
+    margin-bottom: 5px;
 }
