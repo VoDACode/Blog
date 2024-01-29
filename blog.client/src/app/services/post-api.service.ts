@@ -32,6 +32,8 @@ export class PostApiService extends BaseApiService {
 
   createPost(post: PostModelRequest) {
     let form = new FormData();
+    post.content = post.content.replace(/(\r\n?)/g, '\n');
+    post.content = post.content.replace(/(\r)/g, '\n');
     form.append('Title', post.title);
     form.append('Content', post.content);
     form.append('IsPublished', post.isPublished.toString());
@@ -47,6 +49,8 @@ export class PostApiService extends BaseApiService {
 
   updatePost(postId: number, post: PostModelRequest, deleteFiles: number[] | null) {
     let form = new FormData();
+    post.content = post.content.replace(/(\r\n?)/g, '\n');
+    post.content = post.content.replace(/(\r)/g, '\n');
     form.append('Title', post.title);
     form.append('Content', post.content);
     form.append('IsPublished', post.isPublished.toString());
