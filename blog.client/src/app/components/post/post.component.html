@@ -1,4 +1,4 @@
-<div class="container post">
+<div class="container post" id="post{{post.id}}">
     <div class="row">
         <div class="col align-self-center">
             <span style="font-size: 18px;">{{post.author}}</span>
@@ -55,6 +55,7 @@
                             </path>
                         </svg>Delete
                     </a>
+                    <span>{{hashUrl}}</span>
                 </div>
             </div>
         </div>
@@ -89,7 +90,7 @@
     </div>
     <div class="row tags">
         <div class="col">
-            <div class="item" *ngFor="let tag of post.tags">
+            <div class="item" *ngFor="let tag of post.tags" (click)="searchByTag(tag)">
                 <span>{{tag}}</span>
             </div>
         </div>

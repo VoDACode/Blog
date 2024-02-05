@@ -8,6 +8,12 @@
     background: var(--bs-primary);
     padding: 3px;
     border-radius: 5px;
+    cursor: pointer;
+    transition: background 0.3s;
+}
+
+.tags .item:hover {
+    background: var(--bs-secondary-bg);
 }
 
 .post {

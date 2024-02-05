@@ -34,9 +34,17 @@ export class HomePageComponent implements OnInit {
     return this.searchText != '';
   }
 
+  public postHashUrl(post: PostModelResponse) {
+    const postIndex = this.posts.indexOf(post);
+    const postPage = Math.floor(postIndex / this.pageSize) + this.page;
+    return `/?page=${postPage}#post${post.id}`;
+  }
+
   constructor(private postApi: PostApiService, private userApi: UserApiService, private actionRouter: ActivatedRoute, private route: Router) { 
     this.actionRouter.queryParams.subscribe(params => {
       let query = params['q'] || '';
+      this.page = Number(params['page']) || 1;
+      if(this.page < 1) this.page = 1;
       this.search(query);
     });
   }
@@ -90,13 +98,15 @@ export class HomePageComponent implements OnInit {
   }
 
   search(text: string = this.searchText) {
-    this.page = 1;
     this.loading = true;
     this.searchText = text;
     this.tagSuggestions = [];
     this.postApi.getPosts(this.page, this.pageSize, text).subscribe(res => {
       this.posts = res.data?.items || [];
       this.maxPageCount = res.data?.totalPagesCount || 0;
+      if(this.page > this.maxPageCount) {
+        this.page = this.maxPageCount;
+      }
       this.loading = false;
       setTimeout(this.onScroll.bind(this), 100);
     });

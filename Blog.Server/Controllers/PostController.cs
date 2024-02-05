@@ -54,6 +54,7 @@ namespace Blog.Server.Controllers
         [HttpPost]
         public async Task<IActionResult> Post([FromForm] CreatePostRequestModel requestModel)
         {
+            requestModel.Content = requestModel.Content?.Replace("\r\n", "\n");
             return await Execute(async () => new PostResponse(await postService.CreatePost(requestModel)));
         }
 

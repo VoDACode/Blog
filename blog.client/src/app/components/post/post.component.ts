@@ -18,6 +18,8 @@ export class PostComponent implements OnInit {
   userModel: UserResponseModel = new UserResponseModel();
   @Input()
   fromList: boolean = false;
+  @Input()
+  hashUrl: string = '';
 
   @Output()
   delete: EventEmitter<PostModelResponse> = new EventEmitter<PostModelResponse>();
@@ -103,5 +105,9 @@ export class PostComponent implements OnInit {
         }
       }
     });
+  }
+
+  searchByTag(tag: string) {
+    this.router.navigate(['/'], { queryParams: { q: '#' + tag } });
   }
 }
