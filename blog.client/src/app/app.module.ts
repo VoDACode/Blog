@@ -1,4 +1,4 @@
-import { HttpClientModule } from '@angular/common/http';
+import { HttpClient, HttpClientModule, provideHttpClient } from '@angular/common/http';
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 
@@ -18,6 +18,8 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { TestPageComponent } from './components/test-page/test-page.component';
 import { ProgressBarComponent } from './components/progress-bar/progress-bar.component';
 
+import { provideMarkdown, MarkdownModule } from 'ngx-markdown';
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -31,9 +33,12 @@ import { ProgressBarComponent } from './components/progress-bar/progress-bar.com
   ],
   imports: [
     FormsModule,
-    BrowserModule, HttpClientModule, RouterModule.forRoot(routes)
+    BrowserModule,
+    HttpClientModule,
+    MarkdownModule.forRoot({ loader: HttpClient }),
+    RouterModule.forRoot(routes)
   ],
-  providers: [AuthGuard],
+  providers: [AuthGuard, provideHttpClient(), provideMarkdown({ loader: HttpClient })],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

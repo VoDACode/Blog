@@ -22,12 +22,34 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/prismjs/components",
+                "output": "/components/"
+              }
             ],
             "styles": [
-              "src/styles.css"
+              "src/styles.css",
+              "node_modules/prismjs/themes/prism-okaidia.min.css",
+              "node_modules/prismjs/plugins/command-line/prism-command-line.min.css",
+              "node_modules/prismjs/plugins/line-numbers/prism-line-numbers.min.css",
+              "node_modules/prismjs/plugins/toolbar/prism-toolbar.min.css",
+              "node_modules/prismjs/plugins/autolinker/prism-autolinker.min.css"
             ],
-            "scripts": []
+            "scripts": [
+              "node_modules/prismjs/prism.js",
+              "node_modules/prismjs/plugins/autoloader/prism-autoloader.min.js",
+              "node_modules/prismjs/plugins/toolbar/prism-toolbar.min.js",
+              "node_modules/prismjs/plugins/normalize-whitespace/prism-normalize-whitespace.min.js",
+              "node_modules/prismjs/plugins/line-numbers/prism-line-numbers.min.js",
+              "node_modules/prismjs/plugins/command-line/prism-command-line.min.js",
+              "node_modules/prismjs/plugins/copy-to-clipboard/prism-copy-to-clipboard.min.js",
+              "node_modules/prismjs/plugins/jsonp-highlight/prism-jsonp-highlight.min.js",
+              "node_modules/emoji-toolkit/lib/js/joypixels.min.js",
+              "node_modules/clipboard/dist/clipboard.min.js",
+              "node_modules/prismjs/plugins/autolinker/prism-autolinker.min.js"
+            ]
           },
           "configurations": {
             "production": {
@@ -60,10 +82,10 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "configurations": {
             "production": {
-              "browserTarget": "blog.client:build:production"
+              "buildTarget": "blog.client:build:production"
             },
             "development": {
-              "browserTarget": "blog.client:build:development"
+              "buildTarget": "blog.client:build:development"
             }
           },
           "defaultConfiguration": "development",
@@ -74,7 +96,7 @@
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "blog.client:build"
+            "buildTarget": "blog.client:build"
           }
         },
         "test": {
@@ -87,7 +109,12 @@
             "tsConfig": "tsconfig.spec.json",
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/prismjs/components",
+                "output": "/components/"
+              }
             ],
             "styles": [
               "src/styles.css"

@@ -26,6 +26,6 @@ export const routes: Routes = [
         ]
     },
     { path: 'profile', component: UserProfileComponent, canActivate: [AuthGuard] },
-    { path: 'test', component: TestPageComponent, canActivate: [AuthGuard]},
+    { path: 'test', component: TestPageComponent, canActivate: [AuthGuard] },
     { path: '**', redirectTo: '' }
 ];
